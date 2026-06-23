@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Gestión de Equivalencias — USIL ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/layout.css">
+  <link rel="stylesheet" href="../../../shared/css/components.css">
+  <style>
+    .split-pane {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+      margin-top: var(--space-6);
+      align-items: stretch;
+    }
+    @media (max-width: 1024px) {
+      .split-pane { grid-template-columns: 1fr; }
+    }
+    .split-card {
+      display: flex; flex-direction: column;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .split-card__header {
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-brand-900);
+    }
+    .split-card--light .split-card__header {
+      background: var(--color-surface-alt);
+    }
+    .split-card__body {
+      flex: 1;
+      padding: var(--space-4) var(--space-5);
+      overflow-y: auto;
+      max-height: 500px;
+      background: var(--color-surface-alt);
+    }
+
+    /* Estilos para listas de cursos seleccionables */
+    .course-item-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-3);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .course-item-card:hover {
+      border-color: var(--color-brand-400);
+      box-shadow: var(--shadow-sm);
+    }
+    .course-item-card.is-selected {
+      border-color: var(--color-brand-600);
+      background: var(--color-brand-100);
+      box-shadow: 0 0 0 1px var(--color-brand-600);
+    }
+    .course-item-card.is-matched {
+      opacity: 0.6;
+      border-color: transparent;
+    }
+    .course-item-card__code { font-size: var(--fs-xs); color: var(--color-text-muted); text-transform: uppercase; }
+    .course-item-card__name { font-size: var(--fs-md); font-weight: var(--fw-semibold); color: var(--color-text-strong); }
+    .course-item-card__cred { font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--color-text); background: var(--color-surface-row); padding: 2px 8px; border-radius: var(--radius-pill); }
+    
+    .ciclo-divider { font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--color-text); text-transform: uppercase; margin: var(--space-4) 0 var(--space-2); }
+
+    .drag-drop-area {
+      border: 2px dashed var(--color-brand-300);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      text-align: center;
+      background: var(--color-brand-100);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .drag-drop-area:hover, .drag-drop-area.drag-over {
+      border-color: var(--color-brand-600);
+      background: var(--color-brand-200);
+    }
+    
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .icon-spin { animation: spin 1s linear infinite; }
+    
+    /* Stepper CSS */
+    .wizard-stepper {
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: var(--space-6); background: var(--color-surface);
+      padding: var(--space-4); border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+    }
+    .wizard-stepper__step {
+      display: flex; align-items: center; gap: var(--space-2);
+      color: var(--color-text-muted); font-weight: var(--fw-semibold);
+      transition: all 0.2s;
+    }
+    .wizard-stepper__step.is-active { color: var(--color-brand-800); }
+    .wizard-stepper__step.is-done { color: var(--color-success-text); }
+    .wizard-stepper__num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--color-surface-alt); border: 2px solid var(--color-text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--fs-sm);
+    }
+    .wizard-stepper__step.is-active .wizard-stepper__num {
+      border-color: var(--color-brand-600); background: var(--color-brand-600); color: #fff;
+    }
+    .wizard-stepper__step.is-done .wizard-stepper__num {
+      border-color: var(--color-success-text); background: var(--color-success-text); color: #fff;
+    }
+    .wizard-stepper__line {
+      flex: 1; height: 2px; background: var(--color-border);
+      margin: 0 var(--space-4); max-width: 100px;
+    }
+    
+    .wizard-step-content { display: none; }
+    .wizard-step-content.is-active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .status-alert {
+      padding: var(--space-4); border-radius: var(--radius-md); margin-top: var(--space-4);
+      display: flex; align-items: center; gap: var(--space-3); font-size: var(--fs-md);
+    }
+    .status-alert--success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .status-alert--warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  </style>
+</head>
+<body>
+
+  <app-shell
+    active="equivalencias"
+    page-title="Gestión de Equivalencias"
+    page-subtitle="Diccionario académico: cruce de cursos externos con cursos USIL (memoria institucional)."
+    page-action="Nueva Equivalencia"
+    page-action-id="nueva-equivalencia">
+
+    <div class="wizard-container">
+      
+      <!-- Stepper -->
+      <div class="wizard-stepper">
+        <div class="wizard-stepper__step is-active" id="stepper-1">
+          <div class="wizard-stepper__num">1</div>
+          <span>Configurar Origen y Destino</span>
+        </div>
+        <div class="wizard-stepper__line"></div>
+        <div class="wizard-stepper__step" id="stepper-2">
+          <div class="wizard-stepper__num">2</div>
+          <span>Emparejamiento de Cursos</span>
+        </div>
+      </div>
+
+      <!-- PASO 1: Setup -->
+      <div id="step-1" class="wizard-step-content is-active">
+        <div class="card" style="padding: var(--space-5);">
+          <h3 style="margin-bottom: var(--space-4); font-size: var(--fs-lg); color: var(--color-brand-800);">Definir Cruce Curricular</h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+            <!-- Destino USIL -->
+            <div>
+              <h4 style="margin-bottom: var(--space-3); color: var(--color-text-strong);">Destino (USIL)</h4>
+              <div class="field">
+                <label class="field__label">Carrera USIL *</label>
+                <select class="field__select" id="crit-carrera-usil">
+                  <option value="">Seleccionar...</option>
+                </select>
+              </div>
+              <div class="field" style="margin-top: var(--space-3);">
+                <label class="field__label">Año de Malla *</label>
+                <select class="field__select" id="crit-anio">
+                  <option value="2023">2023</option>
+                  <option value="2024">2024</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Origen Externo -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-3);">
+                <h4 style="color: var(--color-text-strong); margin: 0;">Origen (Externo)</h4>
+                <a href="#" id="link-nueva-inst" style="font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--color-brand-600); text-decoration: none;">+ Registrar Nueva Institución</a>
+              </div>
+              <div class="field">
+                <label class="field__label">Institución Externa *</label>
+                <select class="field__select" id="crit-inst">
+                  <option value="">Seleccionar...</option>
+                </select>
+              </div>
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-4); margin-top: var(--space-3);">
+                <div class="field" id="field-carrera-ext">
+                  <label class="field__label">Carrera Externa *</label>
+                  <input type="text" class="field__input" id="crit-carrera-ext" placeholder="Ej: Ingeniería Informática">
+                </div>
+                <div class="field">
+                  <label class="field__label">Año / Versión *</label>
+                  <input type="text" class="field__input" id="crit-version-ext" placeholder="Ej: 2022">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zona de Validación / Histórico -->
+          <div id="step-1-validation-zone" style="margin-top: var(--space-5); border-top: 1px solid var(--color-border); padding-top: var(--space-4); display: none;">
+            <h4 style="color: var(--color-text-strong); margin-bottom: var(--space-3);">Estado del Histórico Académico</h4>
+            
+            <div id="alert-historical-ready" class="status-alert status-alert--success" style="display: none;">
+              <span data-icon="check-circle"></span>
+              <div>
+                <strong>Histórico Encontrado:</strong> Ya existe un plan de estudios procesado para esta institución. Puedes proceder directamente al emparejamiento.
+              </div>
+            </div>
+
+            <div id="alert-historical-missing" class="status-alert status-alert--warning" style="display: none; flex-direction: column; align-items: stretch;">
+              <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3);">
+                <span data-icon="alert-circle"></span>
+                <strong>Sin Histórico:</strong> No se encontraron cursos para esta institución. Debes alimentar el diccionario.
+              </div>
+              
+              <!-- Drag Drop aquí en el Paso 1 -->
+              <div class="drag-drop-area" id="pdf-drop-area">
+                <span data-icon="upload-cloud" style="font-size: 32px; color: var(--color-brand-600); margin-bottom: var(--space-3); display: inline-flex;"></span>
+                <p style="margin: 0; font-size: var(--fs-md); color: var(--color-text-strong);">Arrastra el Histórico/Certificado (PDF) aquí o <strong style="color: var(--color-brand-600)">haz clic para examinar</strong></p>
+                <p style="margin-top: 4px; font-size: var(--fs-sm); color: var(--color-text-muted);">La Inteligencia Artificial extraerá los cursos automáticamente.</p>
+                <input type="file" id="eq-pdf-upload" accept=".pdf" style="display: none;">
+              </div>
+              <div class="ia-note" id="ai-status" style="margin-top: var(--space-4); display: none;">
+                <span class="ia-note__icon icon-spin" data-icon="loader"></span>
+                <span id="ai-status-text">Analizando histórico con IA...</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: var(--space-6); display: flex; justify-content: flex-end;">
+            <button class="btn btn--primary" id="btn-go-step2" disabled>Siguiente: Realizar Equivalencias <span data-icon="chevronRight"></span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 2: Emparejamiento (Split Pane) -->
+      <div id="step-2" class="wizard-step-content">
+        <div style="margin-bottom: var(--space-4);">
+          <button class="btn btn--outline" id="btn-back-step1" style="padding: 6px 12px;"><span data-icon="chevronLeft"></span> Volver a configuración</button>
+        </div>
+
+        <div class="split-pane" style="margin-top: 0;">
+          <!-- Malla USIL -->
+          <div class="split-card">
+            <div class="split-card__header">
+              <h3 style="color: var(--color-surface); font-size: var(--fs-lg); margin-bottom: 2px;">Malla USIL</h3>
+              <span style="color: rgba(255,255,255,0.7); font-size: var(--fs-sm);" id="usil-header-meta">...</span>
+            </div>
+            <div class="split-card__body" id="usil-course-list">
+              <div style="text-align: center; color: var(--color-text-muted); padding: var(--space-6);">Cargando...</div>
+            </div>
+          </div>
+
+          <!-- Cursos Externos -->
+          <div class="split-card split-card--light">
+            <div class="split-card__header" style="border-bottom: 1px solid var(--color-border);">
+              <h3 style="color: var(--color-text-strong); font-size: var(--fs-lg); margin-bottom: 2px;">Cursos Externos (Histórico)</h3>
+              <span style="color: var(--color-text-muted); font-size: var(--fs-sm);" id="ext-header-meta">...</span>
+            </div>
+            <div class="split-card__body" id="ext-course-list">
+              <div id="ext-courses-container"></div>
+            </div>
+            <!-- Footer Action (Match / Save Equivalent) -->
+        <div id="match-action-bar" style="display: flex; justify-content: space-between; align-items: center; background: var(--color-surface); padding: var(--space-4) var(--space-6); border: 1px solid var(--color-brand-500); border-radius: var(--radius-md); margin-top: var(--space-6); opacity: 0; transition: opacity 0.3s; pointer-events: none;">
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-weight: var(--fw-bold); color: var(--color-brand-800);" id="match-text">Selecciona un curso de cada columna para comparar</span>
+            <span style="font-size: var(--fs-sm); color: var(--color-text-muted);" id="match-score"></span>
+          </div>
+          <button class="btn btn--primary" id="btn-save-match" disabled>Registrar Equivalencia</button>
+        </div>
+
+        <!-- Tabla Equivalencias Registradas (Ahora solo en Paso 2) -->
+        <div class="card" style="margin-top: var(--space-6);">
+          <div style="padding: var(--space-5); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border);">
+            <h3 style="font-size: var(--fs-lg); color: var(--color-brand-800);">Equivalencias para este Cruce</h3>
+            <a href="#" style="color: var(--color-brand-600); font-size: var(--fs-sm); font-weight: var(--fw-semibold);">Ver todas</a>
+          </div>
+          <div class="table-container">
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead style="background: var(--color-brand-900);">
+                  <tr>
+                    <th style="color: var(--color-surface);">Ciclo</th>
+                    <th style="color: var(--color-surface);">Curso USIL</th>
+                    <th style="color: var(--color-surface);">Curso Externo</th>
+                    <th class="col-center" style="color: var(--color-surface);">Créditos</th>
+                    <th class="col-center" style="color: var(--color-surface);">Estado</th>
+                    <th class="col-center" style="color: var(--color-surface);">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="equiv-tbody">
+                  <!-- JS Inject -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-shell>
+
+  <!-- Modal Registro Institución Externa -->
+  <div class="modal-overlay" id="modal-inst" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center;">
+    <div class="card" style="width: 100%; max-width: 500px; padding: var(--space-6);">
+      <h3 style="margin-bottom: var(--space-4); color: var(--color-brand-800);">Registrar Institución Externa</h3>
+      <p style="font-size: var(--fs-sm); color: var(--color-text-muted); margin-bottom: var(--space-5);">Complete los datos oficiales para añadir la institución al diccionario.</p>
+      
+      <div class="field" style="margin-bottom: var(--space-4);">
+        <label class="field__label">Nombre Oficial *</label>
+        <input type="text" class="field__input" id="new-inst-nombre" placeholder="Ej: Universidad de Buenos Aires">
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4);">
+        <div class="field">
+          <label class="field__label">País *</label>
+          <select class="field__select" id="new-inst-pais">
+            <option value="">Seleccionar...</option>
+            <option value="Argentina">Argentina</option>
+            <option value="Colombia">Colombia</option>
+            <option value="España">España</option>
+            <option value="México">México</option>
+            <option value="Perú">Perú</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Ciudad *</label>
+          <input type="text" class="field__input" id="new-inst-ciudad" placeholder="Ej: Buenos Aires">
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-5);">
+        <div class="field">
+          <label class="field__label">Tipo de Institución *</label>
+          <select class="field__select" id="new-inst-tipo">
+            <option value="Universidad">Universidad</option>
+            <option value="Instituto">Instituto</option>
+            <option value="Escuela">Escuela</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Acreditación</label>
+          <select class="field__select" id="new-inst-acred">
+            <option value="Acreditada">Acreditada</option>
+            <option value="En proceso">En proceso</option>
+            <option value="No acreditada">No acreditada</option>
+          </select>
+        </div>
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end; gap: var(--space-3);">
+        <button class="btn btn--outline" id="btn-cancel-inst">Cancelar</button>
+        <button class="btn btn--primary" id="btn-save-inst">Guardar y Seleccionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalle -->
+  <div class="modal-overlay" id="modal-detalle">
+    <div class="modal-content modal-content--lg">
+      <div class="modal-header">
+        <h3 class="modal-title">Detalle de la equivalencia</h3>
+        <button class="modal-close" id="detalle-close" data-icon="x"></button>
+      </div>
+      <div class="modal-body" id="detalle-body">
+        <!-- contenido inyectado -->
+      </div>
+      <div class="modal-footer" id="detalle-footer">
+        <!-- acciones inyectadas -->
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../shared/js/icons.js"></script>
+  <script src="../../../shared/js/nav-config.js"></script>
+  <script src="../../../shared/js/app-shell.js"></script>
+
+  <!-- Módulo 100% local: sin dependencias externas (no se cuelga sin red). -->
+  <script type="module" src="./script.js?v=5"></script>
+</body>
+</html>

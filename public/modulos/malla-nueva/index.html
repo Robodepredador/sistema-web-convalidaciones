@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creación de Nueva Malla Curricular — USIL ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/layout.css">
+  <link rel="stylesheet" href="../../../shared/css/components.css">
+  <link rel="stylesheet" href="../../../shared/css/wizard.css">
+</head>
+<body>
+
+  <app-shell active="mallas"
+    page-title="Creación de Nueva Malla Curricular"
+    page-subtitle="Complete los 4 pasos para registrar una nueva malla curricular.">
+
+    <!-- ===================== STEPPER ===================== -->
+    <ol class="stepper" id="stepper">
+      <li class="step is-active" id="step-1"><span class="step__num">1</span><span class="step__label">Cabecera</span></li>
+      <li class="step__line"></li>
+      <li class="step" id="step-2"><span class="step__num">2</span><span class="step__label">Tipo</span></li>
+      <li class="step__line"></li>
+      <li class="step" id="step-3"><span class="step__num">3</span><span class="step__label">Cursos</span></li>
+      <li class="step__line"></li>
+      <li class="step" id="step-4"><span class="step__num">4</span><span class="step__label">Resumen</span></li>
+    </ol>
+
+    <!-- ===================== PASO 1 · CABECERA ===================== -->
+    <section class="wizard-step is-active" id="panel-1">
+      <div class="form-section">
+        <h2 class="form-section__title">Datos Institucionales</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label class="field__label" for="cab-unidad">Unidad de Negocio</label>
+            <select class="field__select" id="cab-unidad">
+              <option value="">Seleccionar Unidad...</option>
+            </select>
+            <span class="field__error" data-error-for="cab-unidad"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cab-facultad">Facultad</label>
+            <select class="field__select" id="cab-facultad">
+              <option value="">Seleccionar Facultad...</option>
+            </select>
+            <span class="field__error" data-error-for="cab-facultad"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cab-carrera">Carrera</label>
+            <select class="field__select" id="cab-carrera">
+              <option value="">Seleccionar Carrera...</option>
+            </select>
+            <span class="field__error" data-error-for="cab-carrera"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="form-section__title">Detalles de Versión</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label class="field__label">Modalidad</label>
+            <div class="radio-group">
+              <label class="radio"><input type="radio" name="modalidad" value="Presencial">Presencial</label>
+              <label class="radio"><input type="radio" name="modalidad" value="Virtual">Virtual</label>
+              <label class="radio"><input type="radio" name="modalidad" value="Semipresencial" checked>Semipresencial</label>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cab-periodo">Periodo Académico de Inicio</label>
+            <input class="field__input" id="cab-periodo" placeholder="Ej: 2024-02">
+            <span class="field__error" data-error-for="cab-periodo"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cab-version">Versión de Malla</label>
+            <input class="field__input" id="cab-version" value="1">
+            <span class="field__error" data-error-for="cab-version"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="wizard-footer">
+        <a class="btn btn--outline" href="../mallas/"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</a>
+        <button class="btn btn--primary" id="s1-next">Continuar a Registro de Cursos<span class="btn__icon" data-icon="chevronRight"></span></button>
+      </div>
+    </section>
+
+    <!-- ===================== PASO 2 · TIPO ===================== -->
+    <section class="wizard-step" id="panel-2">
+      <div class="choice-cards">
+        <button type="button" class="choice-card" id="choice-excel" data-tipo="excel">
+          <span class="choice-card__icon" data-icon="cloud"></span>
+          <span class="choice-card__title">Importar Malla desde Excel</span>
+          <span class="choice-card__desc">Recomendado para mallas completas. Carga masiva de cursos, pre-requisitos y créditos mediante archivo .xlsx</span>
+          <span class="choice-card__foot"><span class="foot-link"><span data-icon="download"></span>Descargar Plantilla Oficial</span></span>
+        </button>
+        <button type="button" class="choice-card is-selected" id="choice-manual" data-tipo="manual">
+          <span class="choice-card__icon" data-icon="list"></span>
+          <span class="choice-card__title">Registro Manual de Cursos</span>
+          <span class="choice-card__desc">Ideal para ajustes rápidos o mallas nuevas de pocos cursos. Interfaz paso a paso para definición individual.</span>
+          <span class="choice-card__foot">Configuración uno a uno</span>
+        </button>
+      </div>
+
+      <div class="info-note">
+        <span class="info-note__icon" data-icon="info"></span>
+        <span><b>Nota Importante:</b> Si utiliza la carga masiva, nuestro motor de IA realizará una validación automática de la coherencia de pre-requisitos antes de confirmar la importación.</span>
+      </div>
+
+      <div class="wizard-footer">
+        <button class="btn btn--outline" id="s2-back"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</button>
+        <button class="btn btn--primary" id="s2-next">Continuar<span class="btn__icon" data-icon="chevronRight"></span></button>
+      </div>
+    </section>
+
+    <!-- ===================== PASO 3 · CURSOS ===================== -->
+    <section class="wizard-step" id="panel-3">
+      <!-- Barra de contexto del plan -->
+      <div class="context-bar">
+        <span class="context-bar__title" id="ctx-title">Nueva Malla</span>
+        <div class="context-bar__meta">
+          <div><div class="context-meta__label">Unidad</div><div class="context-meta__value" id="ctx-unidad">—</div></div>
+          <div><div class="context-meta__label">Carrera</div><div class="context-meta__value" id="ctx-carrera">—</div></div>
+          <div><div class="context-meta__label">Periodo</div><div class="context-meta__value" id="ctx-periodo">—</div></div>
+          <div><div class="context-meta__label">Versión</div><div class="context-meta__value" id="ctx-version">—</div></div>
+        </div>
+      </div>
+
+      <!-- 3-A: Importar Excel -->
+      <div id="step3-excel">
+        <div class="import-grid">
+          <div class="upload-card">
+            <div class="upload-card__head">
+              <span class="upload-card__title">Carga de Archivo Maestro</span>
+              <button class="btn btn--outline btn--sm"><span data-icon="download"></span>Descargar Plantilla Oficial</button>
+            </div>
+            <div class="dropzone" id="dropzone">
+              <span class="dropzone__icon" data-icon="upload"></span>
+              <span class="dropzone__title">Arrastra y suelta tu archivo aquí</span>
+              <span class="dropzone__hint">Sube el archivo Excel conteniendo la estructura curricular completa. Solo se aceptan formatos .xlsx o .xls</span>
+              <span class="dropzone__file" id="dropzone-file" hidden></span>
+              <span class="field__error" id="excel-error" role="alert"></span>
+              <button class="btn btn--primary btn--sm" id="dropzone-pick">Seleccionar Archivo</button>
+              <input type="file" id="file-input" accept=".xlsx,.xls" hidden>
+            </div>
+          </div>
+
+          <div class="format-card">
+            <h3 class="format-card__title"><span data-icon="doc"></span>Formato Específico</h3>
+            <p class="format-card__intro">Para asegurar una carga exitosa, el archivo debe contener estrictamente las siguientes columnas en la primera hoja:</p>
+            <div class="format-list" id="format-list"><!-- generado por JS --></div>
+          </div>
+        </div>
+
+        <div class="wizard-footer">
+          <button class="btn btn--outline" id="s3e-back"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</button>
+          <button class="btn btn--primary" id="s3e-next">Continuar a Revisión<span class="btn__icon" data-icon="chevronRight"></span></button>
+        </div>
+      </div>
+
+      <!-- 3-B: Registro Manual -->
+      <div id="step3-manual" hidden>
+        <div class="card table-container">
+          <div style="padding: var(--space-4) var(--space-5) 0">
+            <div class="course-toolbar">
+              <button class="btn btn--primary btn--sm" id="add-row"><span data-icon="plus"></span>Añadir Fila</button>
+              <div class="course-total">
+                <span class="course-total__label">Total Créditos</span>
+                <span class="course-total__value" id="course-total">0</span>
+              </div>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table data-table--compact">
+              <thead>
+                <tr>
+                  <th class="col-center">Ciclo</th>
+                  <th class="col-center">Ord.</th>
+                  <th>Código</th>
+                  <th>Nombre del Curso</th>
+                  <th>Cond.</th>
+                  <th class="col-center">Créd.</th>
+                  <th class="col-center">Horas (T/P/L)</th>
+                  <th>Prerrequisito</th>
+                  <th>Clasif. SUNEDU</th>
+                  <th>Mención</th>
+                  <th class="col-center">Créd. Mín.</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="course-tbody"><!-- filas generadas por JS --></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="wizard-footer">
+          <button class="btn btn--outline" id="s3m-back"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</button>
+          <div class="wizard-footer__center">
+            <button class="btn btn--outline" id="s3m-import"><span class="btn__icon" data-icon="cloud"></span>Importar Excel</button>
+          </div>
+          <button class="btn btn--primary" id="s3m-next">Continuar a Revisión<span class="btn__icon" data-icon="chevronRight"></span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PASO 4 · RESUMEN ===================== -->
+    <section class="wizard-step" id="panel-4">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-card__head">
+            <span class="summary-card__title"><span data-icon="building"></span>Datos Institucionales</span>
+          </div>
+          <div class="summary-list" id="summary-institucional"><!-- generado por JS --></div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-card__head">
+            <span class="summary-card__title">Estructura Curricular</span>
+            <div class="export-actions">
+              <a href="#" class="export-link" id="export-pdf"><span data-icon="download"></span>Exportar PDF</a>
+              <a href="#" class="export-link" id="export-excel"><span data-icon="download"></span>Exportar Excel</a>
+            </div>
+          </div>
+          <div class="curriculum" id="summary-curriculum"><!-- generado por JS --></div>
+        </div>
+      </div>
+
+      <div class="wizard-footer">
+        <button class="btn btn--outline" id="s4-back"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</button>
+        <button class="btn btn--primary" id="s4-publish">Publicar Malla Curricular<span class="btn__icon" data-icon="send"></span></button>
+      </div>
+    </section>
+
+  </app-shell>
+
+  <!-- Scripts: orden importa -->
+  <script src="../../../shared/js/icons.js"></script>
+  <script src="../../../shared/js/nav-config.js"></script>
+  <script src="../../../shared/js/app-shell.js"></script>
+  <script type="module" src="./script.js"></script>
+</body>
+</html>
