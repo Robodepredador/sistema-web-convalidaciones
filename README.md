@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sistema de Convalidaciones USIL — ERP Académico
 
 **Stack:** HTML5 + CSS3 + Vanilla JavaScript (sin dependencias)
@@ -157,3 +158,6 @@ npm run test:all      # ambos
 
 **Stack objetivo (producción):** Laravel  
 **Mockups actuales:** HTML + CSS + Vanilla JS
+=======
+# sistema-web-convalidaciones
+>>>>>>> d71dd7eb5fa300b7409feef1dcb0a82e18aa84e3
