@@ -273,7 +273,10 @@
             <div class="split-card__body" id="ext-course-list">
               <div id="ext-courses-container"></div>
             </div>
-            <!-- Footer Action (Match / Save Equivalent) -->
+          </div><!-- /split-card--light -->
+        </div><!-- /split-pane -->
+
+        <!-- Match Action Bar -->
         <div id="match-action-bar" style="display: flex; justify-content: space-between; align-items: center; background: var(--color-surface); padding: var(--space-4) var(--space-6); border: 1px solid var(--color-brand-500); border-radius: var(--radius-md); margin-top: var(--space-6); opacity: 0; transition: opacity 0.3s; pointer-events: none;">
           <div style="display: flex; flex-direction: column;">
             <span style="font-weight: var(--fw-bold); color: var(--color-brand-800);" id="match-text">Selecciona un curso de cada columna para comparar</span>
@@ -282,7 +285,7 @@
           <button class="btn btn--primary" id="btn-save-match" disabled>Registrar Equivalencia</button>
         </div>
 
-        <!-- Tabla Equivalencias Registradas (Ahora solo en Paso 2) -->
+        <!-- Tabla Equivalencias Registradas -->
         <div class="card" style="margin-top: var(--space-6);">
           <div style="padding: var(--space-5); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border);">
             <h3 style="font-size: var(--fs-lg); color: var(--color-brand-800);">Equivalencias para este Cruce</h3>
@@ -307,9 +310,9 @@
               </table>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </div><!-- /card tabla -->
+      </div><!-- /step-2 -->
+    </div><!-- /wizard-container -->
   </app-shell>
 
   <!-- Modal Registro Institución Externa -->
