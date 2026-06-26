@@ -6,6 +6,7 @@
 
 const NAV_ITEMS = [
   { id: 'dashboard',      label: 'Dashboard',              icon: 'dashboard', href: '/public/pages/dashboard.html' },
+  { id: 'admision',       label: 'Admisión',               icon: 'users',     href: '/public/modulos/admision/' },
   { id: 'mallas',         label: 'Mallas Curriculares',    icon: 'grid',      href: '/public/modulos/mallas/' },
   { id: 'equivalencias',  label: 'Equivalencias',          icon: 'swap',      href: '/public/modulos/equivalencias/' },
   { id: 'instituciones',  label: 'Instituciones Externas', icon: 'building',  href: '/public/modulos/instituciones/' },
@@ -13,7 +14,7 @@ const NAV_ITEMS = [
   { id: 'convalidaciones',label: 'Convalidaciones',        icon: 'doc',       href: '/public/pages/convalidaciones.html' },
   { id: 'reportes',       label: 'Reportes',               icon: 'doc',       href: '/public/pages/reportes.html' },
   { id: 'usuarios',       label: 'Usuarios',               icon: 'users',     href: '/public/modulos/usuarios/' },
-  { id: 'centro-ia',      label: 'Centro IA',              icon: 'ai',        href: '/public/pages/centro-ia.html' }
+  { id: 'centro-ia',      label: 'Centro IA',              icon: 'ai',        href: '/public/modulos/centro-ia/' }
 ];
 
 const NAV_FOOTER = [

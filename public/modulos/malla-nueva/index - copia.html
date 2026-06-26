@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creación de Nueva Malla Curricular — USIL ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/layout.css">
+  <link rel="stylesheet" href="../../../shared/css/components.css">
+  <link rel="stylesheet" href="../../../shared/css/wizard.css">
+  <style>
+    /* ── PDF flow ────────────────────────────────────────── */
+    .ia-dropzone {
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-8) var(--space-6);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      background: var(--color-surface-alt);
+    }
+    .ia-dropzone.is-drag,
+    .ia-dropzone:hover { border-color: var(--color-brand-600); background: var(--color-brand-50, #f0f4ff); }
+    .ia-dropzone__icon { font-size: 2rem; margin-bottom: var(--space-3); color: var(--color-brand-600); }
+    .ia-dropzone__title { display: block; font-weight: var(--fw-semibold); color: var(--color-text-strong); margin-bottom: var(--space-2); }
+    .ia-dropzone__file  { display: block; font-size: var(--fs-sm); color: var(--color-brand-700); margin-bottom: var(--space-2); }
+
+    .pdf-nomodel-warn {
+      display: flex; align-items: center; gap: var(--space-3);
+      background: #fff7ed; border: 1px solid #fed7aa;
+      border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4);
+      font-size: var(--fs-sm); color: #92400e;
+      margin-bottom: var(--space-4);
+    }
+    .pdf-model-badge {
+      display: inline-block; font-size: var(--fs-xs); font-weight: var(--fw-semibold);
+      background: var(--color-brand-100); color: var(--color-brand-800);
+      border-radius: var(--radius-pill); padding: 2px var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    /* spinner */
+    .pdf-spinner {
+      width: 44px; height: 44px; margin: var(--space-6) auto var(--space-4);
+      border: 4px solid var(--color-border);
+      border-top-color: var(--color-brand-600);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .pdf-progress-text {
+      text-align: center; font-size: var(--fs-sm); color: var(--color-text-muted);
+    }
+
+    .pdf-review-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); margin-top: var(--space-4); }
+    .pdf-review-table th,
+    .pdf-review-table td { padding: var(--space-2) var(--space-3); text-align: left; border-bottom: 1px solid var(--color-border-subtle); }
+    .pdf-review-table th { font-weight: var(--fw-bold); color: var(--color-text-muted); font-size: var(--fs-xs); text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+  <app-shell active="mallas"
+    page-title="Creación de Nueva Malla Curricular"
+    page-subtitle="Complete los 4 pasos para registrar una nueva malla curricular.">
+
+    <!-- ===================== STEPPER ===================== -->
+    <ol class="stepper" id="stepper">
+      <li class="step is-active" id="step-1"><span class="step__num">1</span><span class="step__label">Cabecera</span></li>
+      <li class="step__line"></li>
+      <li class="step" id="step-2"><span class="step__num">2</span><span class="step__label">Tipo</span></li>
+      <li class="step__line"></li>
+      <li class="step" id="step-3"><span class="step__num">3</span><span class="step__label">Cursos</span></li>
+      <li class="step__line"></li>
+      <li class="step" id="step-4"><span class="step__num">4</span><span class="step__label">Resumen</span></li>
+    </ol>
+
+    <!-- ===================== PASO 1 · CABECERA ===================== -->
+    <section class="wizard-step is-active" id="panel-1">
+      <div class="form-section">
+        <h2 class="form-section__title">Datos Institucionales</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label class="field__label" for="cab-unidad">Unidad de Negocio</label>
+            <select class="field__select" id="cab-unidad">
+              <option value="">Seleccionar Unidad...</option>
+            </select>
+            <span class="field__error" data-error-for="cab-unidad"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cab-facultad">Facultad</label>
+            <select class="field__select" id="cab-facultad">
+              <option value="">Seleccionar Facultad...</option>
+            </select>
+            <span class="field__error" data-error-for="cab-facultad"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cab-carrera">Carrera</label>
+            <select class="field__select" id="cab-carrera">
+              <option value="">Seleccionar Carrera...</option>
+            </select>
+            <span class="field__error" data-error-for="cab-carrera"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="form-section__title">Detalles de Versión</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label class="field__label">Modalidad</label>
+            <div class="radio-group">
+              <label class="radio"><input type="radio" name="modalidad" value="Presencial">Presencial</label>
+              <label class="radio"><input type="radio" name="modalidad" value="Virtual">Virtual</label>
+              <label class="radio"><input type="radio" name="modalidad" value="Semipresencial" checked>Semipresencial</label>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cab-periodo">Periodo Académico de Inicio</label>
+            <input class="field__input" id="cab-periodo" placeholder="Ej: 2024-02">
+            <span class="field__error" data-error-for="cab-periodo"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cab-version">Versión de Malla</label>
+            <input class="field__input" id="cab-version" value="1">
+            <span class="field__error" data-error-for="cab-version"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="wizard-footer">
+        <a class="btn btn--outline" href="../mallas/"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</a>
+        <button class="btn btn--primary" id="s1-next">Continuar<span class="btn__icon" data-icon="chevronRight"></span></button>
+      </div>
+    </section>
+
+    <!-- ===================== PASO 2 · TIPO ===================== -->
+    <section class="wizard-step" id="panel-2">
+      <div class="choice-cards">
+
+        <button type="button" class="choice-card" id="choice-pdf" data-tipo="pdf">
+          <span class="choice-card__icon" data-icon="cloud"></span>
+          <span class="choice-card__title">Importar desde Archivo</span>
+          <span class="choice-card__desc">Sube un PDF (extracción con IA), Excel (.xlsx/.xls) o CSV con la estructura de cursos. Incluye revisión antes de confirmar.</span>
+          <span class="choice-card__foot">PDF con IA · Excel · CSV</span>
+        </button>
+
+        <button type="button" class="choice-card is-selected" id="choice-manual" data-tipo="manual">
+          <span class="choice-card__icon" data-icon="list"></span>
+          <span class="choice-card__title">Registro Manual de Cursos</span>
+          <span class="choice-card__desc">Ideal para ajustes rápidos o mallas nuevas de pocos cursos. Interfaz paso a paso para definición individual.</span>
+          <span class="choice-card__foot">Configuración uno a uno</span>
+        </button>
+
+      </div>
+
+      <div class="wizard-footer">
+        <button class="btn btn--outline" id="s2-back"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</button>
+        <button class="btn btn--primary" id="s2-next">Continuar<span class="btn__icon" data-icon="chevronRight"></span></button>
+      </div>
+    </section>
+
+    <!-- ===================== PASO 3 · CURSOS ===================== -->
+    <section class="wizard-step" id="panel-3">
+
+      <!-- Barra de contexto del plan -->
+      <div class="context-bar">
+        <span class="context-bar__title" id="ctx-title">Nueva Malla</span>
+        <div class="context-bar__meta">
+          <div><div class="context-meta__label">Unidad</div><div class="context-meta__value" id="ctx-unidad">—</div></div>
+          <div><div class="context-meta__label">Carrera</div><div class="context-meta__value" id="ctx-carrera">—</div></div>
+          <div><div class="context-meta__label">Periodo</div><div class="context-meta__value" id="ctx-periodo">—</div></div>
+          <div><div class="context-meta__label">Versión</div><div class="context-meta__value" id="ctx-version">—</div></div>
+        </div>
+      </div>
+
+      <!-- 3-A: Importar PDF con IA -->
+      <div id="step3-pdf" hidden>
+
+        <!-- Estado: subir archivo -->
+        <div id="pdf-state-upload">
+
+          <!-- Aviso: sin modelo de visión (dentro del estado de carga para que se oculte automáticamente) -->
+          <div class="pdf-nomodel-warn" id="pdf-state-nomodel" hidden>
+            <span>⚠️</span>
+            <div>
+              <span class="nomodel-msg">No hay modelo de visión activo.</span>
+              <br>
+              <a href="/public/modulos/centro-ia/" style="color:inherit;font-weight:700;text-decoration:underline">Ir a Centro IA</a>
+              para configurarlo, luego
+              <button type="button" id="pdf-recheck-model" class="btn btn--ghost btn--sm" style="font-weight:700;text-decoration:underline;padding:0">verificar nuevamente</button>.
+            </div>
+          </div>
+
+          <!-- Badge modelo activo -->
+          <div class="pdf-model-badge" id="pdf-model-badge"></div>
+
+          <div class="ia-dropzone" id="ia-dropzone">
+            <div class="ia-dropzone__icon">📄</div>
+            <span class="ia-dropzone__title" id="ia-dropzone-title">Arrastra tu archivo aquí</span>
+            <span class="ia-dropzone__file" id="ia-dropzone-file" hidden></span>
+            <button type="button" class="btn btn--outline btn--sm" id="ia-pick-file" style="margin-top:var(--space-3)">
+              Seleccionar archivo
+            </button>
+            <span style="display:block;font-size:var(--fs-xs);color:var(--color-text-muted);margin-top:var(--space-2)">
+              PDF (IA) · Excel .xlsx/.xls · CSV
+            </span>
+            <input type="file" id="ia-file-input" accept=".pdf,.xlsx,.xls,.csv,application/pdf" hidden>
+          </div>
+          <span class="field__error" id="pdf-file-error" role="alert" style="display:block;margin-top:var(--space-2)"></span>
+
+          <div class="wizard-footer" style="margin-top:var(--space-5)">
+            <button class="btn btn--outline" id="s3p-back"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</button>
+            <button class="btn btn--primary" id="s3p-extract" disabled>
+              <span class="btn__icon" id="s3p-extract-icon" data-icon="ai"></span>
+              <span id="s3p-extract-label">Extraer con IA</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado: procesando -->
+        <div id="pdf-state-processing" hidden>
+          <div class="pdf-spinner"></div>
+          <p class="pdf-progress-text" id="pdf-progress-text">Iniciando extracción…</p>
+          <p class="pdf-progress-text" style="margin-top:var(--space-2);font-size:var(--fs-xs)">
+            La IA analiza cada página por separado. Puede tardar 30–90 segundos por página.
+          </p>
+          <div style="text-align:center;margin-top:var(--space-5)">
+            <button class="btn btn--outline btn--sm" id="s3p-cancel">Cancelar</button>
+          </div>
+        </div>
+
+        <!-- Estado: revisión -->
+        <div id="pdf-state-review" hidden>
+          <p id="pdf-review-summary" style="font-size:var(--fs-sm);color:var(--color-text-muted);margin-bottom:var(--space-3)"></p>
+          <div style="overflow-x:auto">
+            <table class="pdf-review-table">
+              <thead>
+                <tr>
+                  <th>Ciclo</th><th>Código</th><th>Nombre</th><th>Cond.</th><th>Créd.</th><th>Horas</th>
+                </tr>
+              </thead>
+              <tbody id="pdf-review-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="wizard-footer" style="margin-top:var(--space-5)">
+            <button class="btn btn--outline" id="s3p-retry"><span class="btn__icon" data-icon="chevronLeft"></span>Intentar de nuevo</button>
+            <button class="btn btn--primary" id="s3p-next" disabled>
+              Aceptar y editar<span class="btn__icon" data-icon="chevronRight"></span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3-B: Registro Manual -->
+      <div id="step3-manual" hidden>
+        <div class="card table-container">
+          <div style="padding: var(--space-4) var(--space-5) 0">
+            <div class="course-toolbar">
+              <button class="btn btn--primary btn--sm" id="add-row"><span data-icon="plus"></span>Añadir Fila</button>
+              <div class="course-total">
+                <span class="course-total__label">Total Créditos</span>
+                <span class="course-total__value" id="course-total">0</span>
+              </div>
+            </div>
+            <span class="field__error" id="courses-error" role="alert" style="display:block;padding-top:var(--space-2)"></span>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table data-table--compact">
+              <thead>
+                <tr>
+                  <th class="col-center">Ciclo</th>
+                  <th>Código</th>
+                  <th>Nombre del Curso</th>
+                  <th>Cond.</th>
+                  <th class="col-center">Créd.</th>
+                  <th class="col-center">Horas</th>
+                  <th>Prerrequisito</th>
+                  <th>Clasif. SUNEDU</th>
+                  <th>Mención</th>
+                  <th class="col-center">Créd. Mín.</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="course-tbody"><!-- filas generadas por JS --></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="wizard-footer">
+          <button class="btn btn--outline" id="s3m-back"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</button>
+          <button class="btn btn--primary" id="s3m-next">Continuar a Revisión<span class="btn__icon" data-icon="chevronRight"></span></button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===================== PASO 4 · RESUMEN ===================== -->
+    <section class="wizard-step" id="panel-4">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-card__head">
+            <span class="summary-card__title"><span data-icon="building"></span>Datos Institucionales</span>
+          </div>
+          <div class="summary-list" id="summary-institucional"><!-- generado por JS --></div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-card__head">
+            <span class="summary-card__title">Estructura Curricular</span>
+            <div class="export-actions">
+              <a href="#" class="export-link" id="export-pdf"><span data-icon="download"></span>Exportar PDF</a>
+              <a href="#" class="export-link" id="export-excel"><span data-icon="download"></span>Exportar Excel</a>
+            </div>
+          </div>
+          <div class="curriculum" id="summary-curriculum"><!-- generado por JS --></div>
+        </div>
+      </div>
+
+      <div class="wizard-footer">
+        <button class="btn btn--outline" id="s4-back"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</button>
+        <button class="btn btn--primary" id="s4-publish">Publicar Malla Curricular<span class="btn__icon" data-icon="send"></span></button>
+      </div>
+    </section>
+
+  </app-shell>
+
+  <script src="../../../shared/js/icons.js"></script>
+  <script src="../../../shared/js/nav-config.js"></script>
+  <script src="../../../shared/js/app-shell.js"></script>
+  <script type="module" src="/public/modulos/malla-nueva/script.js"></script>
+</body>
+</html>

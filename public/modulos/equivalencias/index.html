@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,24 +21,32 @@
       margin-top: var(--space-6);
       align-items: stretch;
     }
+
     @media (max-width: 1024px) {
-      .split-pane { grid-template-columns: 1fr; }
+      .split-pane {
+        grid-template-columns: 1fr;
+      }
     }
+
     .split-card {
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
       overflow: hidden;
       box-shadow: var(--shadow-sm);
     }
+
     .split-card__header {
       padding: var(--space-4) var(--space-5);
       background: var(--color-brand-900);
     }
+
     .split-card--light .split-card__header {
       background: var(--color-surface-alt);
     }
+
     .split-card__body {
       flex: 1;
       padding: var(--space-4) var(--space-5);
@@ -55,26 +64,55 @@
       margin-bottom: var(--space-3);
       cursor: pointer;
       transition: all 0.2s ease;
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+
     .course-item-card:hover {
       border-color: var(--color-brand-400);
       box-shadow: var(--shadow-sm);
     }
+
     .course-item-card.is-selected {
       border-color: var(--color-brand-600);
       background: var(--color-brand-100);
       box-shadow: 0 0 0 1px var(--color-brand-600);
     }
+
     .course-item-card.is-matched {
       opacity: 0.6;
       border-color: transparent;
     }
-    .course-item-card__code { font-size: var(--fs-xs); color: var(--color-text-muted); text-transform: uppercase; }
-    .course-item-card__name { font-size: var(--fs-md); font-weight: var(--fw-semibold); color: var(--color-text-strong); }
-    .course-item-card__cred { font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--color-text); background: var(--color-surface-row); padding: 2px 8px; border-radius: var(--radius-pill); }
-    
-    .ciclo-divider { font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--color-text); text-transform: uppercase; margin: var(--space-4) 0 var(--space-2); }
+
+    .course-item-card__code {
+      font-size: var(--fs-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+    }
+
+    .course-item-card__name {
+      font-size: var(--fs-md);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text-strong);
+    }
+
+    .course-item-card__cred {
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-bold);
+      color: var(--color-text);
+      background: var(--color-surface-row);
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+    }
+
+    .ciclo-divider {
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-bold);
+      color: var(--color-text);
+      text-transform: uppercase;
+      margin: var(--space-4) 0 var(--space-2);
+    }
 
     .drag-drop-area {
       border: 2px dashed var(--color-brand-300);
@@ -85,291 +123,647 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .drag-drop-area:hover, .drag-drop-area.drag-over {
+
+    .drag-drop-area:hover,
+    .drag-drop-area.drag-over {
       border-color: var(--color-brand-600);
       background: var(--color-brand-200);
     }
-    
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    .icon-spin { animation: spin 1s linear infinite; }
-    
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .icon-spin {
+      animation: spin 1s linear infinite;
+    }
+
     /* Stepper CSS */
     .wizard-stepper {
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: var(--space-6); background: var(--color-surface);
-      padding: var(--space-4); border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-6);
+      background: var(--color-surface);
+      padding: var(--space-4);
+      border-radius: var(--radius-lg);
       border: 1px solid var(--color-border);
     }
+
     .wizard-stepper__step {
-      display: flex; align-items: center; gap: var(--space-2);
-      color: var(--color-text-muted); font-weight: var(--fw-semibold);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-text-muted);
+      font-weight: var(--fw-semibold);
       transition: all 0.2s;
     }
-    .wizard-stepper__step.is-active { color: var(--color-brand-800); }
-    .wizard-stepper__step.is-done { color: var(--color-success-text); }
+
+    .wizard-stepper__step.is-active {
+      color: var(--color-brand-800);
+    }
+
+    .wizard-stepper__step.is-done {
+      color: var(--color-success-text);
+    }
+
     .wizard-stepper__num {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: var(--color-surface-alt); border: 2px solid var(--color-text-muted);
-      display: flex; align-items: center; justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--color-surface-alt);
+      border: 2px solid var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: var(--fs-sm);
     }
+
     .wizard-stepper__step.is-active .wizard-stepper__num {
-      border-color: var(--color-brand-600); background: var(--color-brand-600); color: #fff;
+      border-color: var(--color-brand-600);
+      background: var(--color-brand-600);
+      color: #fff;
     }
+
     .wizard-stepper__step.is-done .wizard-stepper__num {
-      border-color: var(--color-success-text); background: var(--color-success-text); color: #fff;
+      border-color: var(--color-success-text);
+      background: var(--color-success-text);
+      color: #fff;
     }
+
     .wizard-stepper__line {
-      flex: 1; height: 2px; background: var(--color-border);
-      margin: 0 var(--space-4); max-width: 100px;
+      flex: 1;
+      height: 2px;
+      background: var(--color-border);
+      margin: 0 var(--space-4);
+      max-width: 100px;
     }
-    
-    .wizard-step-content { display: none; }
-    .wizard-step-content.is-active { display: block; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    
+
+    .wizard-step-content {
+      display: none;
+    }
+
+    .wizard-step-content.is-active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .status-alert {
-      padding: var(--space-4); border-radius: var(--radius-md); margin-top: var(--space-4);
-      display: flex; align-items: center; gap: var(--space-3); font-size: var(--fs-md);
+      padding: var(--space-4);
+      border-radius: var(--radius-md);
+      margin-top: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--fs-md);
     }
-    .status-alert--success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
-    .status-alert--warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+
+    .status-alert--success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .status-alert--warning {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    /* ── Pestañas del módulo ── */
+    .eq-tabs-nav {
+      display: flex;
+      gap: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--space-6);
+    }
+
+    .eq-tab-btn {
+      background: transparent;
+      border: none;
+      font-size: var(--fs-md);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text-muted);
+      padding: var(--space-3) var(--space-4);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .eq-tab-btn:hover {
+      color: var(--color-text-strong);
+    }
+
+    .eq-tab-btn.is-active {
+      color: var(--color-brand-800);
+      border-bottom-color: var(--color-brand-800);
+    }
+
+    .eq-tab-content {
+      display: none;
+    }
+
+    .eq-tab-content.is-active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* ── Bandeja: tarjetas de estadísticas ── */
+    .eq-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    @media (max-width: 900px) {
+      .eq-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .eq-stat-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .eq-stat-card__label {
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--color-text-muted);
+      font-weight: var(--fw-bold);
+    }
+
+    .eq-stat-card__value {
+      font-size: 26px;
+      font-weight: var(--fw-bold);
+      color: var(--color-text-strong);
+      margin-top: 4px;
+      line-height: 1.1;
+    }
+
+    /* ── Bandeja: filtros ── */
+    .eq-filters {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      align-items: flex-end;
+      margin-bottom: var(--space-4);
+    }
+
+    .eq-filters .field {
+      margin: 0;
+    }
+
+    .eq-filters .field__input,
+    .eq-filters .field__select {
+      min-width: 210px;
+    }
+
+    /* ── Bandeja: acciones inline ── */
+    .eq-act {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      cursor: pointer;
+      font-weight: var(--fw-bold);
+      color: var(--color-text-muted);
+      transition: all 0.15s ease;
+    }
+
+    .eq-act+.eq-act {
+      margin-left: 6px;
+    }
+
+    .eq-act:hover {
+      background: var(--color-surface-alt);
+    }
+
+    .eq-act--approve {
+      color: var(--color-success-text);
+    }
+
+    .eq-act--approve:hover {
+      border-color: var(--color-success-text);
+      background: #ecfdf5;
+    }
+
+    .eq-act--reject {
+      color: var(--color-error);
+    }
+
+    .eq-act--reject:hover {
+      border-color: var(--color-error);
+      background: #fee2e2;
+    }
+
+    .eq-act:disabled {
+      opacity: .5;
+      cursor: default;
+    }
   </style>
 </head>
+
 <body>
 
-  <app-shell
-    active="equivalencias"
-    page-title="Gestión de Equivalencias"
-    page-subtitle="Diccionario académico: cruce de cursos externos con cursos USIL (memoria institucional)."
-    page-action="Nueva Equivalencia"
-    page-action-id="nueva-equivalencia">
+  <app-shell active="equivalencias" page-title="Gestión de Equivalencias"
+    page-subtitle="Diccionario académico: cruce de cursos externos con cursos USIL (memoria institucional).">
 
-    <div class="wizard-container">
-      
-      <!-- Stepper -->
-      <div class="wizard-stepper">
-        <div class="wizard-stepper__step is-active" id="stepper-1">
-          <div class="wizard-stepper__num">1</div>
-          <span>Configurar Origen y Destino</span>
-        </div>
-        <div class="wizard-stepper__line"></div>
-        <div class="wizard-stepper__step" id="stepper-2">
-          <div class="wizard-stepper__num">2</div>
-          <span>Emparejamiento de Cursos</span>
-        </div>
-      </div>
-
-      <!-- PASO 1: Setup -->
-      <div id="step-1" class="wizard-step-content is-active">
-        <div class="card" style="padding: var(--space-5);">
-          <h3 style="margin-bottom: var(--space-4); font-size: var(--fs-lg); color: var(--color-brand-800);">Definir Cruce Curricular</h3>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
-            <!-- Destino USIL -->
-            <div>
-              <h4 style="margin-bottom: var(--space-3); color: var(--color-text-strong);">Destino (USIL)</h4>
-              <div class="field">
-                <label class="field__label">Carrera USIL *</label>
-                <select class="field__select" id="crit-carrera-usil">
-                  <option value="">Seleccionar...</option>
-                </select>
-              </div>
-              <div class="field" style="margin-top: var(--space-3);">
-                <label class="field__label">Año de Malla *</label>
-                <select class="field__select" id="crit-anio">
-                  <option value="2023">2023</option>
-                  <option value="2024">2024</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Origen Externo -->
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-3);">
-                <h4 style="color: var(--color-text-strong); margin: 0;">Origen (Externo)</h4>
-                <a href="#" id="link-nueva-inst" style="font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--color-brand-600); text-decoration: none;">+ Registrar Nueva Institución</a>
-              </div>
-              <div class="field">
-                <label class="field__label">Institución Externa *</label>
-                <select class="field__select" id="crit-inst">
-                  <option value="">Seleccionar...</option>
-                </select>
-              </div>
-              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-4); margin-top: var(--space-3);">
-                <div class="field" id="field-carrera-ext">
-                  <label class="field__label">Carrera Externa *</label>
-                  <input type="text" class="field__input" id="crit-carrera-ext" placeholder="Ej: Ingeniería Informática">
-                </div>
-                <div class="field">
-                  <label class="field__label">Año / Versión *</label>
-                  <input type="text" class="field__input" id="crit-version-ext" placeholder="Ej: 2022">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Zona de Validación / Histórico -->
-          <div id="step-1-validation-zone" style="margin-top: var(--space-5); border-top: 1px solid var(--color-border); padding-top: var(--space-4); display: none;">
-            <h4 style="color: var(--color-text-strong); margin-bottom: var(--space-3);">Estado del Histórico Académico</h4>
-            
-            <div id="alert-historical-ready" class="status-alert status-alert--success" style="display: none;">
-              <span data-icon="check-circle"></span>
-              <div>
-                <strong>Histórico Encontrado:</strong> Ya existe un plan de estudios procesado para esta institución. Puedes proceder directamente al emparejamiento.
-              </div>
-            </div>
-
-            <div id="alert-historical-missing" class="status-alert status-alert--warning" style="display: none; flex-direction: column; align-items: stretch;">
-              <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3);">
-                <span data-icon="alert-circle"></span>
-                <strong>Sin Histórico:</strong> No se encontraron cursos para esta institución. Debes alimentar el diccionario.
-              </div>
-              
-              <!-- Drag Drop aquí en el Paso 1 -->
-              <div class="drag-drop-area" id="pdf-drop-area">
-                <span data-icon="upload-cloud" style="font-size: 32px; color: var(--color-brand-600); margin-bottom: var(--space-3); display: inline-flex;"></span>
-                <p style="margin: 0; font-size: var(--fs-md); color: var(--color-text-strong);">Arrastra el Histórico/Certificado (PDF) aquí o <strong style="color: var(--color-brand-600)">haz clic para examinar</strong></p>
-                <p style="margin-top: 4px; font-size: var(--fs-sm); color: var(--color-text-muted);">La Inteligencia Artificial extraerá los cursos automáticamente.</p>
-                <input type="file" id="eq-pdf-upload" accept=".pdf" style="display: none;">
-              </div>
-              <div class="ia-note" id="ai-status" style="margin-top: var(--space-4); display: none;">
-                <span class="ia-note__icon icon-spin" data-icon="loader"></span>
-                <span id="ai-status-text">Analizando histórico con IA...</span>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top: var(--space-6); display: flex; justify-content: flex-end;">
-            <button class="btn btn--primary" id="btn-go-step2" disabled>Siguiente: Realizar Equivalencias <span data-icon="chevronRight"></span></button>
-          </div>
-        </div>
-      </div>
-
-      <!-- PASO 2: Emparejamiento (Split Pane) -->
-      <div id="step-2" class="wizard-step-content">
-        <div style="margin-bottom: var(--space-4);">
-          <button class="btn btn--outline" id="btn-back-step1" style="padding: 6px 12px;"><span data-icon="chevronLeft"></span> Volver a configuración</button>
-        </div>
-
-        <div class="split-pane" style="margin-top: 0;">
-          <!-- Malla USIL -->
-          <div class="split-card">
-            <div class="split-card__header">
-              <h3 style="color: var(--color-surface); font-size: var(--fs-lg); margin-bottom: 2px;">Malla USIL</h3>
-              <span style="color: rgba(255,255,255,0.7); font-size: var(--fs-sm);" id="usil-header-meta">...</span>
-            </div>
-            <div class="split-card__body" id="usil-course-list">
-              <div style="text-align: center; color: var(--color-text-muted); padding: var(--space-6);">Cargando...</div>
-            </div>
-          </div>
-
-          <!-- Cursos Externos -->
-          <div class="split-card split-card--light">
-            <div class="split-card__header" style="border-bottom: 1px solid var(--color-border);">
-              <h3 style="color: var(--color-text-strong); font-size: var(--fs-lg); margin-bottom: 2px;">Cursos Externos (Histórico)</h3>
-              <span style="color: var(--color-text-muted); font-size: var(--fs-sm);" id="ext-header-meta">...</span>
-            </div>
-            <div class="split-card__body" id="ext-course-list">
-              <div id="ext-courses-container"></div>
-            </div>
-          </div><!-- /split-card--light -->
-        </div><!-- /split-pane -->
-
-        <!-- Match Action Bar -->
-        <div id="match-action-bar" style="display: flex; justify-content: space-between; align-items: center; background: var(--color-surface); padding: var(--space-4) var(--space-6); border: 1px solid var(--color-brand-500); border-radius: var(--radius-md); margin-top: var(--space-6); opacity: 0; transition: opacity 0.3s; pointer-events: none;">
-          <div style="display: flex; flex-direction: column;">
-            <span style="font-weight: var(--fw-bold); color: var(--color-brand-800);" id="match-text">Selecciona un curso de cada columna para comparar</span>
-            <span style="font-size: var(--fs-sm); color: var(--color-text-muted);" id="match-score"></span>
-          </div>
-          <button class="btn btn--primary" id="btn-save-match" disabled>Registrar Equivalencia</button>
-        </div>
-
-        <!-- Tabla Equivalencias Registradas -->
-        <div class="card" style="margin-top: var(--space-6);">
-          <div style="padding: var(--space-5); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border);">
-            <h3 style="font-size: var(--fs-lg); color: var(--color-brand-800);">Equivalencias para este Cruce</h3>
-            <a href="#" style="color: var(--color-brand-600); font-size: var(--fs-sm); font-weight: var(--fw-semibold);">Ver todas</a>
-          </div>
-          <div class="table-container">
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead style="background: var(--color-brand-900);">
-                  <tr>
-                    <th style="color: var(--color-surface);">Ciclo</th>
-                    <th style="color: var(--color-surface);">Curso USIL</th>
-                    <th style="color: var(--color-surface);">Curso Externo</th>
-                    <th class="col-center" style="color: var(--color-surface);">Créditos</th>
-                    <th class="col-center" style="color: var(--color-surface);">Estado</th>
-                    <th class="col-center" style="color: var(--color-surface);">Acción</th>
-                  </tr>
-                </thead>
-                <tbody id="equiv-tbody">
-                  <!-- JS Inject -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div><!-- /card tabla -->
-      </div><!-- /step-2 -->
-    </div><!-- /wizard-container -->
-  </app-shell>
-
-  <!-- Modal Registro Institución Externa -->
-  <div class="modal-overlay" id="modal-inst" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center;">
-    <div class="card" style="width: 100%; max-width: 500px; padding: var(--space-6);">
-      <h3 style="margin-bottom: var(--space-4); color: var(--color-brand-800);">Registrar Institución Externa</h3>
-      <p style="font-size: var(--fs-sm); color: var(--color-text-muted); margin-bottom: var(--space-5);">Complete los datos oficiales para añadir la institución al diccionario.</p>
-      
-      <div class="field" style="margin-bottom: var(--space-4);">
-        <label class="field__label">Nombre Oficial *</label>
-        <input type="text" class="field__input" id="new-inst-nombre" placeholder="Ej: Universidad de Buenos Aires">
-      </div>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4);">
-        <div class="field">
-          <label class="field__label">País *</label>
-          <select class="field__select" id="new-inst-pais">
-            <option value="">Seleccionar...</option>
-            <option value="Argentina">Argentina</option>
-            <option value="Colombia">Colombia</option>
-            <option value="España">España</option>
-            <option value="México">México</option>
-            <option value="Perú">Perú</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
-        <div class="field">
-          <label class="field__label">Ciudad *</label>
-          <input type="text" class="field__input" id="new-inst-ciudad" placeholder="Ej: Buenos Aires">
-        </div>
-      </div>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-5);">
-        <div class="field">
-          <label class="field__label">Tipo de Institución *</label>
-          <select class="field__select" id="new-inst-tipo">
-            <option value="Universidad">Universidad</option>
-            <option value="Instituto">Instituto</option>
-            <option value="Escuela">Escuela</option>
-          </select>
-        </div>
-        <div class="field">
-          <label class="field__label">Acreditación</label>
-          <select class="field__select" id="new-inst-acred">
-            <option value="Acreditada">Acreditada</option>
-            <option value="En proceso">En proceso</option>
-            <option value="No acreditada">No acreditada</option>
-          </select>
-        </div>
-      </div>
-      
-      <div style="display: flex; justify-content: flex-end; gap: var(--space-3);">
-        <button class="btn btn--outline" id="btn-cancel-inst">Cancelar</button>
-        <button class="btn btn--primary" id="btn-save-inst">Guardar y Seleccionar</button>
-      </div>
+    <!-- Pestañas del módulo -->
+    <div class="eq-tabs-nav">
+      <button class="eq-tab-btn is-active" data-target="eq-tab-bandeja">Bandeja de Atención</button>
+      <button class="eq-tab-btn" data-target="eq-tab-nueva">Emparejamiento de Cursos</button>
     </div>
-  </div>
+
+    <!-- ═══ PESTAÑA: Bandeja de Atención ═══ -->
+    <div id="eq-tab-bandeja" class="eq-tab-content is-active">
+
+      <!-- Estadísticas -->
+      <div class="eq-stats">
+        <div class="eq-stat-card">
+          <div class="eq-stat-card__label">Total</div>
+          <div class="eq-stat-card__value" id="stat-total">—</div>
+        </div>
+        <div class="eq-stat-card">
+          <div class="eq-stat-card__label">Pendientes</div>
+          <div class="eq-stat-card__value" id="stat-pendientes" style="color: var(--color-warning-text);">—</div>
+        </div>
+        <div class="eq-stat-card">
+          <div class="eq-stat-card__label">Aprobadas</div>
+          <div class="eq-stat-card__value" id="stat-aprobadas" style="color: var(--color-success-text);">—</div>
+        </div>
+        <div class="eq-stat-card">
+          <div class="eq-stat-card__label">En Revisión</div>
+          <div class="eq-stat-card__value" id="stat-rechazadas" style="color: var(--color-error);">—</div>
+        </div>
+        <div class="eq-stat-card">
+          <div class="eq-stat-card__label">Tasa aprob.</div>
+          <div class="eq-stat-card__value" id="stat-tasa">—</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="eq-filters">
+        <div class="field">
+          <label class="field__label">Buscar postulante</label>
+          <input type="text" class="field__input" id="bandeja-search" placeholder="Nombre o DNI del postulante…">
+        </div>
+        <div class="field">
+          <label class="field__label">Estado</label>
+          <select class="field__select" id="bandeja-estado">
+            <option value="PENDIENTE">Pendientes</option>
+            <option value="">Todas</option>
+            <option value="EN REVISIÓN">En revisión</option>
+            <option value="APROBADA">Aprobadas</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Institución</label>
+          <select class="field__select" id="bandeja-inst">
+            <option value="">Todas</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="card table-container">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Postulante</th>
+                <th>Inst. Origen</th>
+                <th>Carrera Origen</th>
+                <th>Carrera USIL Destino</th>
+                <th class="col-center">Documentos</th>
+                <th class="col-center">Estado</th>
+                <th class="col-center">Atención</th>
+              </tr>
+            </thead>
+            <tbody id="bandeja-tbody">
+              <tr>
+                <td colspan="7" class="table-empty">Cargando solicitudes…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /eq-tab-bandeja -->
+
+    <!-- ═══ PESTAÑA: Nueva Equivalencia (wizard) ═══ -->
+    <div id="eq-tab-nueva" class="eq-tab-content">
+      <div class="wizard-container">
+
+        <!-- Stepper -->
+        <div class="wizard-stepper">
+          <div class="wizard-stepper__step is-active" id="stepper-1">
+            <div class="wizard-stepper__num">1</div>
+            <span>Contexto del Expediente</span>
+          </div>
+          <div class="wizard-stepper__line"></div>
+          <div class="wizard-stepper__step" id="stepper-2">
+            <div class="wizard-stepper__num">2</div>
+            <span>Emparejamiento de Cursos</span>
+          </div>
+          <div class="wizard-stepper__line"></div>
+          <div class="wizard-stepper__step" id="stepper-3">
+            <div class="wizard-stepper__num">3</div>
+            <span>Resumen de Convalidación</span>
+          </div>
+        </div>
+
+        <!-- PASO 1: Contexto del Expediente -->
+        <div id="step-1" class="wizard-step-content is-active">
+          <div class="card" style="padding: var(--space-5);">
+            <h3 style="margin-bottom: var(--space-5); font-size: var(--fs-lg); color: var(--color-brand-800);">Contexto
+              del Expediente</h3>
+
+            <!-- Fila superior: postulante + destino USIL -->
+            <div
+              style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-5);">
+
+              <!-- Datos del postulante -->
+              <div>
+                <p
+                  style="font-size: var(--fs-xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: .07em; color: var(--color-text-muted); margin-bottom: var(--space-3);">
+                  Datos del Postulante</p>
+                <div class="field">
+                  <label class="field__label">Nombre Completo</label>
+                  <input type="text" class="field__input" id="inp-alumno-nombre"
+                    placeholder="Ej: Leonardo Choquehanca Salas">
+                </div>
+                <div
+                  style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-3);">
+                  <div class="field">
+                    <label class="field__label">DNI</label>
+                    <input type="text" class="field__input" id="inp-alumno-dni" placeholder="73393215" maxlength="8">
+                  </div>
+                  <div class="field">
+                    <label class="field__label">Institución de Origen *</label>
+                    <select class="field__select" id="crit-inst">
+                      <option value="">Seleccionar...</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Destino USIL -->
+              <div>
+                <p
+                  style="font-size: var(--fs-xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: .07em; color: var(--color-text-muted); margin-bottom: var(--space-3);">
+                  Destino USIL</p>
+                <div class="field">
+                  <label class="field__label">Carrera USIL *</label>
+                  <select class="field__select" id="crit-carrera-usil">
+                    <option value="">Seleccionar...</option>
+                  </select>
+                </div>
+                <div class="field" style="margin-top: var(--space-3);">
+                  <label class="field__label">Año de Malla *</label>
+                  <select class="field__select" id="crit-anio">
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Record Histórico -->
+            <div style="border-top: 1px solid var(--color-border); padding-top: var(--space-5);">
+              <p
+                style="font-size: var(--fs-xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: .07em; color: var(--color-text-muted); margin-bottom: var(--space-3);">
+                Record Histórico del Postulante</p>
+
+              <!-- Zona drag-drop (visible cuando no hay archivo) -->
+              <div class="drag-drop-area" id="pdf-drop-area">
+                <span data-icon="upload-cloud"
+                  style="font-size: 36px; color: var(--color-brand-600); margin-bottom: var(--space-2); display: inline-flex;"></span>
+                <p style="margin: 0 0 4px; font-size: var(--fs-md); color: var(--color-text-strong);">
+                  Arrastra el Record Histórico aquí o <strong style="color: var(--color-brand-600);">haz clic para
+                    examinar</strong>
+                </p>
+                <p style="margin: 0; font-size: var(--fs-sm); color: var(--color-text-muted);">PDF, Excel (.xlsx) o CSV
+                </p>
+                <input type="file" id="eq-file-upload" accept=".pdf,.xlsx,.xls,.csv" style="display: none;">
+              </div>
+
+              <!-- Archivo listo para analizar -->
+              <div id="file-ready-bar"
+                style="display: none; margin-top: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-md); align-items: center; gap: var(--space-3);">
+                <span data-icon="file-text" style="color: var(--color-brand-600); flex-shrink: 0;"></span>
+                <span id="file-name-display"
+                  style="font-size: var(--fs-sm); color: var(--color-text-strong); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                <button class="btn btn--primary" id="btn-analyze"
+                  style="padding: 6px 16px; font-size: var(--fs-sm); white-space: nowrap;">
+                  Analizar con IA
+                </button>
+                <button id="btn-remove-file" title="Quitar archivo"
+                  style="background: none; border: none; cursor: pointer; color: var(--color-text-muted); padding: 4px; line-height: 1; flex-shrink: 0;">
+                  <span data-icon="x"></span>
+                </button>
+              </div>
+
+              <!-- Procesando con IA -->
+              <div id="ai-processing"
+                style="display: none; margin-top: var(--space-3); padding: var(--space-4); background: var(--color-brand-100); border: 1px solid var(--color-brand-300); border-radius: var(--radius-md);">
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                  <span class="icon-spin" data-icon="loader"
+                    style="color: var(--color-brand-600); flex-shrink: 0;"></span>
+                  <div>
+                    <div style="font-weight: var(--fw-semibold); color: var(--color-brand-800);" id="ai-status-text">
+                      Leyendo el documento…</div>
+                    <div style="font-size: var(--fs-sm); color: var(--color-brand-600);" id="ai-progress-text">Por favor
+                      espera…</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Extracción exitosa -->
+              <div id="extraction-success"
+                style="display: none; margin-top: var(--space-3); padding: var(--space-4); background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-md); align-items: center; gap: var(--space-3);">
+                <span data-icon="check-circle" style="color: #16a34a; font-size: 20px; flex-shrink: 0;"></span>
+                <div style="flex: 1;">
+                  <div style="font-weight: var(--fw-semibold); color: #065f46;" id="extraction-count-text"></div>
+                  <div style="font-size: var(--fs-sm); color: #16a34a;">Listo para emparejar con la malla USIL</div>
+                </div>
+                <button id="btn-re-upload"
+                  style="background: none; border: none; cursor: pointer; font-size: var(--fs-sm); color: #16a34a; text-decoration: underline; padding: 0; white-space: nowrap;">
+                  Cambiar archivo
+                </button>
+              </div>
+            </div>
+
+            <div style="margin-top: var(--space-6); display: flex; justify-content: flex-end;">
+              <button class="btn btn--primary" id="btn-go-step2" disabled>
+                Siguiente: Emparejar Cursos <span data-icon="chevronRight"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASO 2: Emparejamiento (Split Pane) -->
+        <div id="step-2" class="wizard-step-content">
+          <div style="margin-bottom: var(--space-4);">
+            <button class="btn btn--outline" id="btn-back-step1" style="padding: 6px 12px;"><span
+                data-icon="chevronLeft"></span> Volver a configuración</button>
+          </div>
+
+          <div class="split-pane" style="margin-top: 0;">
+            <!-- Malla USIL -->
+            <div class="split-card">
+              <div class="split-card__header">
+                <h3 style="color: var(--color-surface); font-size: var(--fs-lg); margin-bottom: 2px;">Malla USIL</h3>
+                <span style="color: rgba(255,255,255,0.7); font-size: var(--fs-sm);" id="usil-header-meta">...</span>
+              </div>
+              <div class="split-card__body" id="usil-course-list">
+                <div style="text-align: center; color: var(--color-text-muted); padding: var(--space-6);">Cargando...
+                </div>
+              </div>
+            </div>
+
+            <!-- Cursos Externos -->
+            <div class="split-card split-card--light">
+              <div class="split-card__header" style="border-bottom: 1px solid var(--color-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div>
+                  <h3 style="color: var(--color-text-strong); font-size: var(--fs-lg); margin-bottom: 2px;">Cursos Externos (Histórico)</h3>
+                  <span style="color: var(--color-text-muted); font-size: var(--fs-sm);" id="ext-header-meta">...</span>
+                </div>
+                <button class="btn btn--outline" id="btn-ia-suggest"
+                  style="font-size:12px;padding:5px 12px;display:none;gap:5px;align-items:center;">
+                  <span data-icon="sparkles"></span> Sugerir con IA
+                </button>
+              </div>
+              <div class="split-card__body" id="ext-course-list">
+                <div id="ext-courses-container"></div>
+              </div>
+            </div><!-- /split-card--light -->
+          </div><!-- /split-pane -->
+
+          <!-- Match Action Bar -->
+          <div id="match-action-bar"
+            style="display: flex; justify-content: space-between; align-items: center; background: var(--color-surface); padding: var(--space-4) var(--space-6); border: 1px solid var(--color-brand-500); border-radius: var(--radius-md); margin-top: var(--space-6); opacity: 0; transition: opacity 0.3s; pointer-events: none;">
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-weight: var(--fw-bold); color: var(--color-brand-800);" id="match-text">Selecciona un
+                curso de cada columna para comparar</span>
+              <span style="font-size: var(--fs-sm); color: var(--color-text-muted);" id="match-score"></span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <button class="btn btn--ghost" id="btn-sin-equiv" style="display:none;">Sin equivalencia</button>
+              <button class="btn btn--primary" id="btn-save-match" disabled>Registrar Equivalencia</button>
+            </div>
+          </div>
+
+          <!-- Tabla Equivalencias Registradas -->
+          <div class="card" style="margin-top: var(--space-6);">
+            <div
+              style="padding: var(--space-5); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border);">
+              <h3 style="font-size: var(--fs-lg); color: var(--color-brand-800);">Equivalencias para este Cruce</h3>
+              <a href="#"
+                style="color: var(--color-brand-600); font-size: var(--fs-sm); font-weight: var(--fw-semibold);">Ver
+                todas</a>
+            </div>
+            <div class="table-container">
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="background:var(--color-brand-900);color:#ffffff;">Ciclo</th>
+                      <th style="background:var(--color-brand-900);color:#ffffff;">Curso USIL</th>
+                      <th style="background:var(--color-brand-900);color:#ffffff;">Curso Externo</th>
+                      <th class="col-center" style="background:var(--color-brand-900);color:#ffffff;">Similitud</th>
+                      <th class="col-center" style="background:var(--color-brand-900);color:#ffffff;">Estado</th>
+                      <th class="col-center" style="background:var(--color-brand-900);color:#ffffff;">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="equiv-tbody">
+                    <!-- JS Inject -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div><!-- /card tabla -->
+
+          <!-- Botón ir al Paso 3 -->
+          <div style="margin-top: var(--space-5); display: flex; justify-content: flex-end;">
+            <button class="btn btn--primary" id="btn-go-step3" disabled>
+              Ver Resumen <span data-icon="chevronRight"></span>
+            </button>
+          </div>
+        </div><!-- /step-2 -->
+
+        <!-- PASO 3: Resumen de Convalidación -->
+        <div id="step-3" class="wizard-step-content">
+          <div style="margin-bottom: var(--space-4);">
+            <button class="btn btn--outline" id="btn-back-step2" style="padding: 6px 12px;">
+              <span data-icon="chevronLeft"></span> Volver al emparejamiento
+            </button>
+          </div>
+
+          <!-- Tarjeta contexto del expediente -->
+          <div class="card" style="padding: var(--space-5); margin-bottom: var(--space-5);" id="resumen-alumno">
+          </div>
+
+          <!-- Tabla simulación -->
+          <div class="card">
+            <div style="padding: var(--space-5); border-bottom: 1px solid var(--color-border);">
+              <h3 style="font-size: var(--fs-lg); color: var(--color-brand-800);">Simulación de Convalidación</h3>
+              <p style="font-size: var(--fs-sm); color: var(--color-text-muted); margin-top: 4px;">Cursos emparejados que serán propuestos para convalidación.</p>
+            </div>
+            <div class="table-container">
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="background:var(--color-brand-900);color:#ffffff;">Ciclo</th>
+                      <th style="background:var(--color-brand-900);color:#ffffff;">Curso USIL</th>
+                      <th style="background:var(--color-brand-900);color:#ffffff;">Curso Externo</th>
+                      <th class="col-center" style="background:var(--color-brand-900);color:#ffffff;">Créd. USIL</th>
+                      <th class="col-center" style="background:var(--color-brand-900);color:#ffffff;">Similitud</th>
+                      <th class="col-center" style="background:var(--color-brand-900);color:#ffffff;">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="resumen-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div><!-- /card simulacion -->
+
+          <!-- Stats -->
+          <div id="resumen-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); margin-top: var(--space-5);"></div>
+
+          <!-- Finalizar -->
+          <div style="margin-top: var(--space-6); display: flex; justify-content: flex-end;">
+            <button class="btn btn--primary" id="btn-resumen-finalizar">
+              Finalizar y volver a Bandeja
+            </button>
+          </div>
+        </div><!-- /step-3 -->
+      </div><!-- /wizard-container -->
+    </div><!-- /eq-tab-nueva -->
+  </app-shell>
 
   <!-- Modal Detalle -->
   <div class="modal-overlay" id="modal-detalle">
@@ -392,7 +786,7 @@
   <script src="../../../shared/js/app-shell.js"></script>
 
   <!-- Módulo 100% local: sin dependencias externas (no se cuelga sin red). -->
-  <script type="module" src="/public/modulos/equivalencias/script.js?v=5"></script>
+  <script type="module" src="/public/modulos/equivalencias/script.js?v=6"></script>
 </body>
-</html>
 
+</html>

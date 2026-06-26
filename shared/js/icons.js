@@ -47,7 +47,8 @@ const ICONS = {
   cpu: '<svg viewBox="0 0 20 20" fill="none"><rect x="4.5" y="4.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="7.5" y="7.5" width="5" height="5" rx=".5" stroke="currentColor" stroke-width="1.2"/><path d="M7.5 2v2.5M12.5 2v2.5M7.5 15.5V18M12.5 15.5V18M2 7.5h2.5M15.5 7.5H18M2 12.5h2.5M15.5 12.5H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   file: '<svg viewBox="0 0 20 20" fill="none"><path d="M5 2.5h6l4 4V17a.5.5 0 0 1-.5.5h-9A.5.5 0 0 1 5 17V3a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M11 2.5V6.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   arrowLeft: '<svg viewBox="0 0 20 20" fill="none"><path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  x: '<svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+  x: '<svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  undo: '<svg viewBox="0 0 20 20" fill="none"><path d="M4 7h8a4.5 4.5 0 0 1 0 9H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 4 4 7l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 };
 
 /* Sanitiza strings para evitar XSS */

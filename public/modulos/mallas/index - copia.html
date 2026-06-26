@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Mallas Curriculares — USIL ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/layout.css">
+  <link rel="stylesheet" href="../../../shared/css/components.css">
+  <link rel="stylesheet" href="../../../shared/css/wizard.css">
+  <style>
+    .module-section { display: none; }
+    .module-section.is-active { display: block; }
+    .resumen-nav {
+      display: flex; align-items: center; gap: var(--space-4);
+      margin-bottom: var(--space-6); padding-bottom: var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .resumen-nav__title { font-size: var(--fs-lg); font-weight: var(--fw-bold); color: var(--color-text-strong); }
+    .resumen-nav__actions { margin-left: auto; display: flex; gap: var(--space-3); }
+  </style>
+</head>
+<body>
+
+  <app-shell
+    active="mallas"
+    page-title="Gestión de Mallas Curriculares"
+    page-subtitle="Administración y seguimiento de programas académicos vigentes."
+    page-action="Nueva Malla Curricular"
+    page-action-id="nueva-malla">
+
+    <!-- ── Sección: Lista ─────────────────────────────────── -->
+    <div class="module-section is-active" id="section-lista">
+
+    <!-- Filtros + Stat -->
+    <div class="toolbar">
+      <div class="filters">
+        <div class="field">
+          <label class="field__label" for="filter-unidad">Unidad de Negocio</label>
+          <select class="field__select" id="filter-unidad">
+            <option value="">Todas las Unidades</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label" for="filter-facultad">Facultad</label>
+          <select class="field__select" id="filter-facultad">
+            <option value="">Todas las Facultades</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label" for="filter-carrera">Carrera</label>
+          <select class="field__select" id="filter-carrera">
+            <option value="">Todas las Carreras</option>
+          </select>
+        </div>
+        <div class="filters__actions">
+          <button class="btn btn--icon" id="filter-apply" data-icon="filter" aria-label="Aplicar filtros"></button>
+          <button class="btn btn--ghost" id="filter-clear" aria-label="Limpiar filtros">Limpiar</button>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-card__label">Mallas Activas</span>
+        <span class="stat-card__value" id="stat-activas">0</span>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card table-container">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Unidad de Negocio</th>
+              <th>Facultad</th>
+              <th>Carrera</th>
+              <th class="col-center">Modalidad</th>
+              <th class="col-center">Periodo</th>
+              <th class="col-center">Versión</th>
+              <th class="col-center">Estado</th>
+              <th class="col-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"><!-- filas generadas por JS --></tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <span class="pagination__info" id="pagination-info"></span>
+        <div class="pagination__pages" id="pagination-pages"></div>
+      </div>
+    </div>
+
+    </div><!-- /section-lista -->
+
+    <!-- ── Sección: Resumen de la malla ───────────────────── -->
+    <div class="module-section" id="section-resumen">
+      <div class="resumen-nav">
+        <button class="btn btn--outline btn--sm" id="resumen-back">
+          <span class="btn__icon" data-icon="chevronLeft"></span>Volver
+        </button>
+        <span class="resumen-nav__title" id="resumen-title">Resumen de la Malla</span>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-card__head">
+            <span class="summary-card__title"><span data-icon="building"></span>Datos Institucionales</span>
+          </div>
+          <div class="summary-list" id="resumen-institucional"><!-- generado por JS --></div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-card__head">
+            <span class="summary-card__title">Estructura Curricular</span>
+            <span class="chip-version" id="resumen-total-cred"></span>
+          </div>
+          <div class="curriculum" id="resumen-curriculum"><!-- generado por JS --></div>
+        </div>
+      </div>
+    </div><!-- /section-resumen -->
+
+  </app-shell>
+
+  <!-- Scripts: orden importa (icons → nav → app-shell → módulo) -->
+  <script src="../../../shared/js/icons.js"></script>
+  <script src="../../../shared/js/nav-config.js"></script>
+  <script src="../../../shared/js/app-shell.js"></script>
+  <script type="module" src="/public/modulos/mallas/script.js"></script>
+</body>
+</html>
+

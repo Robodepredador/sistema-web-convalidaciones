@@ -1,0 +1,16 @@
+node_modules
+.git
+.claude
+tests
+test-results
+docs
+scripts
+playwright-report
+playwright.config.js
+vitest.config.js
+start-server.bat
+.env
+.env.*
+*.md
+package.json
+package-lock.json

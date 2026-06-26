@@ -7,6 +7,58 @@ const DB_KEY = 'usil_erp_db';
 
 // Datos iniciales para poblar la DB si está vacía
 const SEED_DATA = {
+  usil_catalog: {
+    Pregrado: {
+      'Facultad de Ingeniería e Inteligencia Artificial': [
+        'INGENIERÍA AGROINDUSTRIAL',
+        'INGENIERÍA EMPRESARIAL',
+        'INGENIERÍA MECATRÓNICA',
+        'INGENIERÍA AMBIENTAL',
+        'INGENIERÍA EN CIBERSEGURIDAD',
+        'INGENIERÍA DE SISTEMAS DE INFORMACIÓN'
+      ],
+      'Facultad de Admin. Hotelera, Turismo y Gastronomía': [
+        'Administración Hotelera',
+        'Turismo',
+        'Gastronomía'
+      ],
+      'Facultad de Ciencias Empresariales': [
+        'Administración',
+        'Marketing'
+      ],
+      'Facultad de Arquitectura': [
+        'Arquitectura'
+      ],
+      'Facultad de Comunicación': [
+        'Comunicaciones'
+      ]
+    },
+    Postgrado: {
+      'Facultad de Ciencias Empresariales': ['MBA Executive'],
+      'Facultad de Ingeniería e Inteligencia Artificial': ['Maestría en Sistemas']
+    },
+    'SIU MIAMI': {
+      'Facultad de Ciencias Empresariales': ['Business Administration']
+    }
+  },
+  solicitudes_admision: [
+    {
+      id: 'SOL-1718912000000',
+      postulante: { nombres: 'Ana María', apellidos: 'López Ruiz', dni: '71234567', correo: 'ana.lopez@gmail.com', telefono: '987654321' },
+      academico: { institucionOrigenId: '1', carreraOrigenId: '5', unidadDestino: 'Pregrado', facultadDestino: 'Facultad de Ingeniería e Inteligencia Artificial', carreraDestino: 'INGENIERÍA DE SISTEMAS DE INFORMACIÓN', mallaDestinoId: 'm-usil-1' },
+      documentos: { dni: true, matricula: true, record: true },
+      estado: 'PENDIENTE',
+      fechaRegistro: '2023-11-01T10:30:00.000Z'
+    },
+    {
+      id: 'SOL-1718912000001',
+      postulante: { nombres: 'Carlos', apellidos: 'Mendoza', dni: '78889999', correo: 'cmendoza@hotmail.com', telefono: '999888777' },
+      academico: { institucionOrigenId: '2', carreraOrigenId: '17', unidadDestino: 'Pregrado', facultadDestino: 'Facultad de Ciencias Empresariales', carreraDestino: 'Administración', mallaDestinoId: 'm-usil-2' },
+      documentos: { dni: true, matricula: true, record: true },
+      estado: 'EN REVISIÓN',
+      fechaRegistro: '2023-11-05T14:15:00.000Z'
+    }
+  ],
   instituciones: [
     { id: '1', nombre: 'Univ. Complutense de Madrid', tipo: 'UNIVERSIDAD', pais: 'España', estado: 'activo', siglas: 'UC', fechaRegistro: '2023-10-14' },
     { id: '2', nombre: 'Tecnológico de Monterrey', tipo: 'UNIVERSIDAD', pais: 'México', estado: 'activo', siglas: 'TEC', fechaRegistro: '2023-10-12' },
@@ -83,6 +135,33 @@ const SEED_DATA = {
     { id: '30', carreraId: '23', institucionId: '4', anioCodigo: 'Malla 2024-I', codigoVisible: 'UBA-ARQ-24', totalCursos: 50, creditos: 220, fechaRegistro: '2023-09-28', estado: 'ACTIVA' },
     { id: '31', carreraId: '24', institucionId: '4', anioCodigo: 'Malla 2024-I', codigoVisible: 'UBA-ECO-24', totalCursos: 44, creditos: 200, fechaRegistro: '2023-09-28', estado: 'ACTIVA' },
     { id: '32', carreraId: '25', institucionId: '4', anioCodigo: 'Malla 2024-I', codigoVisible: 'UBA-SOC-24', totalCursos: 40, creditos: 180, fechaRegistro: '2023-09-28', estado: 'ACTIVA' }
+  ],
+
+  mallasUsil: [
+    {
+      id: 'm-usil-1',
+      unidad: 'Pregrado',
+      facultad: 'Facultad de Ingeniería e Inteligencia Artificial',
+      carrera: 'INGENIERÍA DE SISTEMAS DE INFORMACIÓN',
+      modalidad: 'PRESENCIAL',
+      periodo: '2024-1',
+      version: 'v1.0',
+      codigoVisible: 'USIL-ISI-24',
+      anioCodigo: 'Malla 2024-I',
+      estado: 'activo'
+    },
+    {
+      id: 'm-usil-2',
+      unidad: 'Pregrado',
+      facultad: 'Facultad de Ciencias Empresariales',
+      carrera: 'Administración',
+      modalidad: 'PRESENCIAL',
+      periodo: '2024-1',
+      version: 'v1.0',
+      codigoVisible: 'USIL-ADM-24',
+      anioCodigo: 'Malla 2024-I',
+      estado: 'activo'
+    }
   ],
 
   /* ============================================================
@@ -300,7 +379,7 @@ const SEED_DATA = {
 };
 
 // Versión del seed — si cambia, resetea la DB local
-const SEED_VERSION = 5;
+const SEED_VERSION = 8;
 
 /* ------------------------------------------------------------
    Almacenamiento — usa localStorage en el navegador y un
@@ -714,7 +793,6 @@ export const db = {
     return data.usuarios[idx];
   },
 
-  /** Eliminación lógica (soft delete) de un usuario (§8). */
   async deleteUsuario(id) {
     await delay();
     const data = getRawData();
@@ -723,5 +801,80 @@ export const db = {
     u.eliminado = true;
     setRawData(data);
     return true;
+  },
+
+  // --- Admision ---
+  async getSolicitudesAdmision() {
+    await delay();
+    const data = getRawData();
+    return (data.solicitudes_admision || []).sort((a, b) => new Date(b.fechaRegistro) - new Date(a.fechaRegistro));
+  },
+
+  async createSolicitudAdmision(solicitud) {
+    await delay(600);
+    const data = getRawData();
+    if (!data.solicitudes_admision) data.solicitudes_admision = [];
+    const newSolicitud = {
+      ...solicitud,
+      id: 'SOL-' + Date.now(),
+      estado: 'PENDIENTE',
+      fechaRegistro: new Date().toISOString()
+    };
+    data.solicitudes_admision.push(newSolicitud);
+    setRawData(data);
+    return newSolicitud;
+  },
+
+  async updateSolicitudAdmision(id, updates) {
+    await delay(500);
+    const data = getRawData();
+    const idx = (data.solicitudes_admision || []).findIndex(s => s.id === id);
+    if (idx === -1) return null;
+    data.solicitudes_admision[idx] = { ...data.solicitudes_admision[idx], ...updates };
+    setRawData(data);
+    return data.solicitudes_admision[idx];
+  },
+
+  // --- USIL Catalog ---
+  async getUsilCatalog() {
+    await delay();
+    const data = getRawData();
+    return data.usil_catalog || {};
+  },
+
+  async addUsilUnidad(unidad) {
+    await delay();
+    const data = getRawData();
+    if (!data.usil_catalog) data.usil_catalog = {};
+    if (!data.usil_catalog[unidad]) {
+      data.usil_catalog[unidad] = {};
+      setRawData(data);
+    }
+    return data.usil_catalog;
+  },
+
+  async addUsilFacultad(unidad, facultad) {
+    await delay();
+    const data = getRawData();
+    if (!data.usil_catalog) data.usil_catalog = {};
+    if (!data.usil_catalog[unidad]) data.usil_catalog[unidad] = {};
+    if (!data.usil_catalog[unidad][facultad]) {
+      data.usil_catalog[unidad][facultad] = [];
+      setRawData(data);
+    }
+    return data.usil_catalog;
+  },
+
+  async addUsilCarrera(unidad, facultad, carrera) {
+    await delay();
+    const data = getRawData();
+    if (!data.usil_catalog) data.usil_catalog = {};
+    if (!data.usil_catalog[unidad]) data.usil_catalog[unidad] = {};
+    if (!data.usil_catalog[unidad][facultad]) data.usil_catalog[unidad][facultad] = [];
+    if (!data.usil_catalog[unidad][facultad].includes(carrera)) {
+      data.usil_catalog[unidad][facultad].push(carrera);
+      setRawData(data);
+    }
+    return data.usil_catalog;
   }
 };

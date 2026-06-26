@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centro IA — USIL ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/layout.css">
+  <link rel="stylesheet" href="../../../shared/css/components.css">
+  <link rel="stylesheet" href="/public/modulos/centro-ia/centro-ia.css">
+</head>
+<body>
+
+  <app-shell
+    active="centro-ia"
+    page-title="Centro IA"
+    page-subtitle="Gestión de modelos de inteligencia artificial integrados al sistema."
+    page-action="Agregar Modelo"
+    page-action-id="btn-agregar-modelo">
+
+    <!-- ── Bandeja: stat-cards + model cards ──────────────── -->
+    <div id="section-bandeja" class="module-section is-active">
+
+      <div class="ia-stats">
+        <div class="ia-stat">
+          <span class="ia-stat__label">Modelos Configurados</span>
+          <span class="ia-stat__val" id="stat-total">0</span>
+        </div>
+        <div class="ia-stat">
+          <span class="ia-stat__label">Modelos Activos</span>
+          <span class="ia-stat__val" id="stat-activos">0</span>
+        </div>
+        <div class="ia-stat">
+          <span class="ia-stat__label">Modelo de Visión</span>
+          <span class="ia-stat__val" id="stat-vision" style="font-size:var(--fs-md)">—</span>
+        </div>
+      </div>
+
+      <div id="models-container"><!-- generado por JS --></div>
+
+    </div><!-- /section-bandeja -->
+
+    <!-- ── Formulario agregar / editar modelo ─────────────── -->
+    <div id="section-form" class="module-section">
+
+      <div class="ia-form-nav">
+        <button class="btn btn--ghost" id="form-back" data-icon="chevronLeft">Volver</button>
+        <span class="ia-form-nav__title" id="form-title">Agregar Modelo de IA</span>
+      </div>
+
+      <form class="ia-form" id="model-form" novalidate>
+        <input type="hidden" id="form-model-id">
+
+        <div class="field">
+          <label class="field__label" for="f-nombre">Nombre descriptivo</label>
+          <input class="field__input" id="f-nombre" placeholder="Ej: Llama 3.2 Vision">
+          <span class="field__error" data-error-for="f-nombre"></span>
+        </div>
+
+        <div class="ia-form-grid">
+          <div class="field">
+            <label class="field__label" for="f-proveedor">Proveedor</label>
+            <select class="field__select" id="f-proveedor">
+              <option value="openrouter">OpenRouter</option>
+              <option value="together">Together AI</option>
+              <option value="nvidia">NVIDIA NIM</option>
+              <option value="custom">Personalizado</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label" for="f-endpoint">Endpoint URL</label>
+            <input class="field__input" id="f-endpoint" placeholder="https://...">
+            <span class="provider-hint" id="f-provider-hint"></span>
+            <span class="field__error" data-error-for="f-endpoint"></span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="f-model-id">Model ID</label>
+          <input class="field__input" id="f-model-id" placeholder="Ej: meta-llama/llama-3.2-11b-vision-instruct">
+          <span class="field__error" data-error-for="f-model-id"></span>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="f-api-key">API Key</label>
+          <input class="field__input" id="f-api-key" type="password" placeholder="sk-...">
+          <span class="field__error" data-error-for="f-api-key"></span>
+        </div>
+
+        <div class="field">
+          <label class="field__label">Capacidades</label>
+          <div class="cap-checkboxes">
+            <label><input type="checkbox" id="cap-vision" value="vision"> Visión (PDF / imágenes)</label>
+            <label><input type="checkbox" id="cap-texto" value="texto" checked> Texto</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label">Estado</label>
+          <div class="cap-checkboxes">
+            <label><input type="checkbox" id="f-activo" checked> Modelo activo</label>
+          </div>
+        </div>
+
+        <div class="ia-form-footer">
+          <button type="submit" class="btn btn--primary" id="form-submit">Guardar Modelo</button>
+          <button type="button" class="btn btn--outline" id="form-cancel">Cancelar</button>
+          <div class="test-inline">
+            <button type="button" class="btn btn--ghost" id="form-test" data-icon="check">Probar conexión</button>
+            <span class="test-inline__result" id="form-test-result"></span>
+          </div>
+        </div>
+      </form>
+
+    </div><!-- /section-form -->
+
+  </app-shell>
+
+  <script src="../../../shared/js/icons.js"></script>
+  <script src="../../../shared/js/nav-config.js"></script>
+  <script src="../../../shared/js/app-shell.js"></script>
+  <script type="module" src="/public/modulos/centro-ia/script.js"></script>
+</body>
+</html>

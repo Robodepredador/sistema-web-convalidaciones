@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../../../shared/css/base.css">
   <link rel="stylesheet" href="../../../shared/css/layout.css">
   <link rel="stylesheet" href="../../../shared/css/components.css">
+  <link rel="stylesheet" href="/public/modulos/mallas/mallas.css">
 </head>
 <body>
 
@@ -21,63 +22,73 @@
     page-action="Nueva Malla Curricular"
     page-action-id="nueva-malla">
 
-    <!-- Filtros + Stat -->
-    <div class="toolbar">
-      <div class="filters">
-        <div class="field">
-          <label class="field__label" for="filter-unidad">Unidad de Negocio</label>
-          <select class="field__select" id="filter-unidad">
-            <option value="">Todas las Unidades</option>
-          </select>
+    <!-- ── Bandeja principal ─────────────────────────────── -->
+    <div id="section-bandeja" class="module-section is-active">
+
+      <!-- Filtros + Stat -->
+      <div class="toolbar">
+        <div class="filters">
+          <div class="field">
+            <label class="field__label" for="filter-unidad">Unidad de Negocio</label>
+            <select class="field__select" id="filter-unidad">
+              <option value="">Todas las Unidades</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label" for="filter-facultad">Facultad</label>
+            <select class="field__select" id="filter-facultad">
+              <option value="">Todas las Facultades</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label" for="filter-carrera">Carrera</label>
+            <select class="field__select" id="filter-carrera">
+              <option value="">Todas las Carreras</option>
+            </select>
+          </div>
+          <div class="filters__actions">
+            <button class="btn btn--icon" id="filter-apply" data-icon="filter" aria-label="Aplicar filtros"></button>
+            <button class="btn btn--ghost" id="filter-clear" aria-label="Limpiar filtros">Limpiar</button>
+          </div>
         </div>
-        <div class="field">
-          <label class="field__label" for="filter-facultad">Facultad</label>
-          <select class="field__select" id="filter-facultad">
-            <option value="">Todas las Facultades</option>
-          </select>
-        </div>
-        <div class="field">
-          <label class="field__label" for="filter-carrera">Carrera</label>
-          <select class="field__select" id="filter-carrera">
-            <option value="">Todas las Carreras</option>
-          </select>
-        </div>
-        <div class="filters__actions">
-          <button class="btn btn--icon" id="filter-apply" data-icon="filter" aria-label="Aplicar filtros"></button>
-          <button class="btn btn--ghost" id="filter-clear" aria-label="Limpiar filtros">Limpiar</button>
+
+        <div class="stat-card">
+          <span class="stat-card__label">Mallas Activas</span>
+          <span class="stat-card__value" id="stat-activas">0</span>
         </div>
       </div>
 
-      <div class="stat-card">
-        <span class="stat-card__label">Mallas Activas</span>
-        <span class="stat-card__value" id="stat-activas">0</span>
-      </div>
-    </div>
+      <!-- Tabla -->
+      <div class="card table-container">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Unidad de Negocio</th>
+                <th>Facultad</th>
+                <th>Carrera</th>
+                <th class="col-center">Modalidad</th>
+                <th class="col-center">Periodo</th>
+                <th class="col-center">Versión</th>
+                <th class="col-center">Estado</th>
+                <th class="col-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"><!-- filas generadas por JS --></tbody>
+          </table>
+        </div>
 
-    <!-- Tabla -->
-    <div class="card table-container">
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Unidad de Negocio</th>
-              <th>Facultad</th>
-              <th>Carrera</th>
-              <th class="col-center">Modalidad</th>
-              <th class="col-center">Periodo</th>
-              <th class="col-center">Versión</th>
-              <th class="col-center">Estado</th>
-              <th class="col-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="table-body"><!-- filas generadas por JS --></tbody>
-        </table>
+        <div class="pagination">
+          <span class="pagination__info" id="pagination-info"></span>
+          <div class="pagination__pages" id="pagination-pages"></div>
+        </div>
       </div>
 
-      <div class="pagination">
-        <span class="pagination__info" id="pagination-info"></span>
-        <div class="pagination__pages" id="pagination-pages"></div>
-      </div>
+    </div><!-- /section-bandeja -->
+
+    <!-- ── Vista de detalle de malla ─────────────────────── -->
+    <div id="section-detalle" class="module-section">
+      <div id="detalle-content"></div>
     </div>
 
   </app-shell>

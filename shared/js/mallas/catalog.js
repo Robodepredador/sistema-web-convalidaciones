@@ -1,64 +1,30 @@
-/**
- * Catálogo institucional en cascada: Unidad → Facultad → Carrera.
- * Usado en filtros de lista y paso 1 del wizard.
- */
-export const INSTITUTIONAL_CATALOG = {
-  Pregrado: {
-    'Facultad de Ingeniería e Inteligencia Artificial': [
-      'INGENIERÍA AGROINDUSTRIAL',
-      'INGENIERÍA EMPRESARIAL',
-      'INGENIERÍA MECATRÓNICA',
-      'INGENIERÍA AMBIENTAL',
-      'INGENIERÍA EN CIBERSEGURIDAD',
-      'INGENIERÍA DE SISTEMAS DE INFORMACIÓN'
-    ],
-    'Facultad de Admin. Hotelera, Turismo y Gastronomía': [
-      'Administración Hotelera',
-      'Turismo',
-      'Gastronomía'
-    ],
-    'Facultad de Ciencias Empresariales': [
-      'Administración',
-      'Marketing'
-    ],
-    'Facultad de Arquitectura': [
-      'Arquitectura'
-    ],
-    'Facultad de Comunicación': [
-      'Comunicaciones'
-    ]
-  },
-  Postgrado: {
-    'Facultad de Ciencias Empresariales': ['MBA Executive'],
-    'Facultad de Ingeniería e Inteligencia Artificial': ['Maestría en Sistemas']
-  },
-  'SIU MIAMI': {
-    'Facultad de Ciencias Empresariales': ['Business Administration']
-  }
-};
+import { db } from '../db.js';
 
-export function getUnidades() {
-  return Object.keys(INSTITUTIONAL_CATALOG);
+export async function getUnidades() {
+  const cat = await db.getUsilCatalog();
+  return Object.keys(cat);
 }
 
-export function getFacultades(unidad) {
+export async function getFacultades(unidad) {
+  const cat = await db.getUsilCatalog();
   if (!unidad) {
     const all = new Set();
-    Object.values(INSTITUTIONAL_CATALOG).forEach((facs) => {
+    Object.values(cat).forEach((facs) => {
       Object.keys(facs).forEach((f) => all.add(f));
     });
     return [...all].sort();
   }
-  if (!INSTITUTIONAL_CATALOG[unidad]) return [];
-  return Object.keys(INSTITUTIONAL_CATALOG[unidad]);
+  if (!cat[unidad]) return [];
+  return Object.keys(cat[unidad]);
 }
 
-export function getCarreras(unidad, facultad) {
+export async function getCarreras(unidad, facultad) {
+  const cat = await db.getUsilCatalog();
   if (!facultad) {
     const all = new Set();
-    const units = unidad ? [unidad] : Object.keys(INSTITUTIONAL_CATALOG);
+    const units = unidad ? [unidad] : Object.keys(cat);
     units.forEach((u) => {
-      const facs = INSTITUTIONAL_CATALOG[u] || {};
+      const facs = cat[u] || {};
       Object.entries(facs).forEach(([fac, carreras]) => {
         if (!facultad || fac === facultad) carreras.forEach((c) => all.add(c));
       });
@@ -67,12 +33,12 @@ export function getCarreras(unidad, facultad) {
   }
   if (!unidad) {
     const all = new Set();
-    Object.entries(INSTITUTIONAL_CATALOG).forEach(([, facs]) => {
+    Object.entries(cat).forEach(([, facs]) => {
       if (facs[facultad]) facs[facultad].forEach((c) => all.add(c));
     });
     return [...all].sort();
   }
-  const facs = INSTITUTIONAL_CATALOG[unidad];
+  const facs = cat[unidad];
   return facs?.[facultad] ? [...facs[facultad]] : [];
 }
 

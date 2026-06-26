@@ -29,6 +29,158 @@ function getFiltered() {
   return filterMallas(state.mallas, state);
 }
 
+function showSection(id) {
+  document.querySelectorAll('.module-section').forEach(s => s.classList.remove('is-active'));
+  document.getElementById(id).classList.add('is-active');
+  try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_) {}
+}
+
+function groupByCiclo(courses) {
+  const groups = {};
+  (courses || []).forEach(c => {
+    const k = c.ciclo != null ? String(c.ciclo) : '?';
+    if (!groups[k]) groups[k] = [];
+    groups[k].push(c);
+  });
+  return Object.entries(groups).sort((a, b) => Number(a[0]) - Number(b[0]));
+}
+
+async function renderDetalle(mallaId) {
+  showSection('section-detalle');
+  const container = document.getElementById('detalle-content');
+  container.innerHTML = '<p style="padding:var(--space-6);color:var(--color-text-muted)">Cargando detalle...</p>';
+
+  const malla = await db.getMallaUsilById(mallaId);
+  if (!malla) {
+    container.innerHTML = '<p style="padding:var(--space-6);color:var(--color-error)">No se encontró la malla.</p>';
+    return;
+  }
+
+  const estadoActivo = malla.estado === 'activo';
+  const groups = groupByCiclo(malla.courses);
+  const totalCredits = (malla.courses || []).reduce((sum, c) => sum + (Number(c.cred) || 0), 0);
+
+  const cycleHTML = groups.map(([ciclo, cursos]) => {
+    const cycleCredits = cursos.reduce((s, c) => s + (Number(c.cred) || 0), 0);
+    const rows = cursos.map(c => `
+      <tr>
+        <td class="col-center">${escapeHtml(String(c.ord ?? ''))}</td>
+        <td><code>${escapeHtml(c.codigo || '')}</code></td>
+        <td class="cell-primary">${escapeHtml(c.nombre || '')}</td>
+        <td class="col-center">${escapeHtml(c.cond || '')}</td>
+        <td class="col-center">${escapeHtml(String(c.cred ?? ''))}</td>
+        <td class="col-center">${escapeHtml(String(c.t ?? 0))}/${escapeHtml(String(c.p ?? 0))}/${escapeHtml(String(c.l ?? 0))}</td>
+        <td>${escapeHtml(c.prereq || '—')}</td>
+        <td class="col-center">${escapeHtml(c.sunedu || '')}</td>
+        <td class="col-center">${escapeHtml(c.mencion || '—')}</td>
+        <td class="col-center">${escapeHtml(String(c.credMin ?? '—'))}</td>
+      </tr>`).join('');
+
+    return `
+      <div class="cycle-section">
+        <div class="cycle-section__header">
+          <span class="cycle-badge">Ciclo ${escapeHtml(ciclo)}</span>
+          <span class="cycle-section__meta">${cursos.length} curso${cursos.length !== 1 ? 's' : ''} · ${cycleCredits} créditos</span>
+        </div>
+        <div class="card table-container">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="col-center">#</th>
+                  <th>Código</th>
+                  <th>Nombre del Curso</th>
+                  <th class="col-center">Condición</th>
+                  <th class="col-center">Créd.</th>
+                  <th class="col-center">T / P / L</th>
+                  <th>Prerrequisito</th>
+                  <th class="col-center">SUNEDU</th>
+                  <th class="col-center">Mención</th>
+                  <th class="col-center">Créd. Mín.</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="det-nav">
+      <button class="btn btn--ghost" id="det-back" data-icon="chevronLeft">Volver</button>
+      <div class="det-nav__info">
+        <span class="det-nav__label">Detalle de Malla Curricular</span>
+        <span class="det-nav__title">${escapeHtml(malla.carrera)}</span>
+      </div>
+      <button class="btn btn--danger" id="det-delete" data-icon="trash" data-malla-id="${escapeHtml(malla.id)}">
+        Eliminar Malla
+      </button>
+    </div>
+
+    <div class="malla-meta-card">
+      <div class="meta-field">
+        <span class="meta-field__label">Unidad de Negocio</span>
+        <span class="meta-field__val">${escapeHtml(malla.unidad)}</span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-field__label">Facultad</span>
+        <span class="meta-field__val">${escapeHtml(malla.facultad)}</span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-field__label">Carrera</span>
+        <span class="meta-field__val">${escapeHtml(malla.carrera)}</span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-field__label">Modalidad</span>
+        <span class="meta-field__val">
+          <span class="tag tag--${escapeHtml(malla.modalidad)}">
+            <span class="tag__icon" data-icon="${escapeHtml(malla.modalidad)}" style="width:12px;height:12px;display:inline-flex"></span>
+            ${escapeHtml(MODALIDAD_LABEL[malla.modalidad] || malla.modalidad)}
+          </span>
+        </span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-field__label">Periodo</span>
+        <span class="meta-field__val">${escapeHtml(malla.periodo)}</span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-field__label">Versión</span>
+        <span class="meta-field__val"><span class="chip-version">${escapeHtml(malla.version)}</span></span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-field__label">Estado</span>
+        <span class="meta-field__val">
+          <span class="badge badge--${estadoActivo ? 'active' : 'inactive'}">
+            <span class="badge__dot"></span>${estadoActivo ? 'Activo' : 'Inactivo'}
+          </span>
+        </span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-field__label">Total Créditos</span>
+        <span class="meta-field__val">${totalCredits}</span>
+      </div>
+    </div>
+
+    ${groups.length ? cycleHTML : '<p class="table-empty" style="padding:var(--space-6)">Esta malla no tiene cursos registrados.</p>'}
+  `;
+
+  safeRenderIcons(container);
+
+  document.getElementById('det-back').addEventListener('click', () => showSection('section-bandeja'));
+  document.getElementById('det-delete').addEventListener('click', () => deleteMalla(malla.id, malla.carrera));
+}
+
+async function deleteMalla(id, carrera) {
+  const confirmed = confirm(`¿Eliminar la malla de "${carrera}"?\n\nEsta acción marcará la malla como eliminada y no podrá deshacerse.`);
+  if (!confirmed) return;
+  await db.updateMallaUsil(id, { eliminado: true });
+  state.mallas = state.mallas.filter(m => m.id !== id);
+  updateStat();
+  showSection('section-bandeja');
+  renderTable();
+}
+
 function buildRow(m) {
   const estadoActivo = m.estado === 'activo';
   return `
@@ -50,8 +202,8 @@ function buildRow(m) {
         </span>
       </td>
       <td class="col-right">
-        <button class="icon-action" data-icon="edit" data-edit-id="${escapeHtml(m.id)}"
-                aria-label="Editar malla de ${escapeHtml(m.carrera)}"></button>
+        <button class="icon-action" data-icon="eye" data-view-id="${escapeHtml(m.id)}"
+                aria-label="Ver detalle de malla de ${escapeHtml(m.carrera)}"></button>
       </td>
     </tr>`;
 }
@@ -97,10 +249,10 @@ function renderPagination(totalPages) {
   safeRenderIcons(container);
 }
 
-function populateFilters() {
-  fillSelect('filter-unidad', getUnidades());
-  fillSelect('filter-facultad', getFacultades(''));
-  fillSelect('filter-carrera', getCarreras('', ''));
+async function populateFilters() {
+  fillSelect('filter-unidad', await getUnidades());
+  fillSelect('filter-facultad', await getFacultades(''));
+  fillSelect('filter-carrera', await getCarreras('', ''));
 }
 
 function fillSelect(id, values) {
@@ -116,17 +268,17 @@ function fillSelect(id, values) {
   });
 }
 
-function updateCascadeFilters(changed) {
+async function updateCascadeFilters(changed) {
   if (changed === 'unidad') {
     state.facultad = '';
     state.carrera = '';
-    fillSelect('filter-facultad', getFacultades(state.unidad));
-    fillSelect('filter-carrera', getCarreras(state.unidad, ''));
+    fillSelect('filter-facultad', await getFacultades(state.unidad));
+    fillSelect('filter-carrera', await getCarreras(state.unidad, ''));
     document.getElementById('filter-facultad').value = '';
     document.getElementById('filter-carrera').value = '';
   } else if (changed === 'facultad') {
     state.carrera = '';
-    fillSelect('filter-carrera', getCarreras(state.unidad, state.facultad));
+    fillSelect('filter-carrera', await getCarreras(state.unidad, state.facultad));
     document.getElementById('filter-carrera').value = '';
   }
 }
@@ -137,7 +289,7 @@ function updateStat() {
 }
 
 function bindEvents() {
-  document.getElementById('filter-unidad').addEventListener('change', (e) => {
+  document.getElementById('filter-unidad').addEventListener('change', async (e) => {
     state.unidad = e.target.value;
     state.page = 1;
     updateCascadeFilters('unidad');
@@ -182,9 +334,9 @@ function bindEvents() {
   });
 
   document.getElementById('table-body').addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-edit-id]');
+    const btn = e.target.closest('[data-view-id]');
     if (!btn) return;
-    window.location.href = `../malla-nueva/?edit=${encodeURIComponent(btn.dataset.editId)}`;
+    renderDetalle(btn.dataset.viewId);
   });
 
   document.addEventListener('app-action', () => {

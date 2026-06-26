@@ -109,8 +109,10 @@ function renderTable() {
           <span class="badge badge--${activo ? 'success' : 'inactive'}"><span class="badge__dot"></span>${activo ? 'Activo' : 'Inactivo'}</span>
         </td>
         <td class="col-right">
-          <button class="icon-action" data-action="editar" data-id="${u.id}" title="Editar" aria-label="Editar"><span data-icon="edit"></span></button>
-          <button class="icon-action" data-action="eliminar" data-id="${u.id}" title="Eliminar" aria-label="Eliminar"><span data-icon="trash"></span></button>
+          <div style="display:inline-flex;gap:var(--space-1);">
+            <button class="icon-action" data-action="editar" data-icon="edit" data-id="${u.id}" title="Editar" aria-label="Editar"></button>
+            <button class="icon-action" data-action="eliminar" data-icon="trash" data-id="${u.id}" title="Eliminar" aria-label="Eliminar"></button>
+          </div>
         </td>
       </tr>`;
   }).join('');

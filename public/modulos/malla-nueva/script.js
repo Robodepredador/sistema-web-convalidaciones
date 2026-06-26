@@ -4,7 +4,6 @@
    ============================================================ */
 
 import {
-  FORMAT_COLUMNS,
   COND_OPTS,
   SUNEDU_OPTS,
   MODALIDAD_MAP
@@ -28,14 +27,14 @@ import {
   validateCabeceraFields,
   validateCourses,
   totalCreditos,
-  groupCoursesByCiclo,
-  mockParseExcel
+  groupCoursesByCiclo
 } from '../../../shared/js/mallas/validation.js';
+import { getActiveVisionModel } from '../../../shared/js/ia/ai-config.js';
+import { extractFromPdf } from '../../../shared/js/ia/pdf-extractor.js';
 
 const params = new URLSearchParams(window.location.search);
 const editId = params.get('edit');
 
-/* Se cargan de forma asíncrona en DOMContentLoaded (db.js). */
 let editingMalla = null;
 let existingMallas = [];
 
@@ -47,7 +46,6 @@ const state = {
   step: 1,
   tipo: 'manual',
   editId: null,
-  excelUploaded: false,
   cabecera: {},
   courses: SEED_COURSES.map((c) => ({ ...c }))
 };
@@ -76,11 +74,7 @@ function goTo(step) {
         : 'Complete los 4 pasos para registrar una nueva malla curricular.');
   }
 
-  try {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } catch {
-    /* entornos sin scrollTo (p. ej. jsdom en tests) */
-  }
+  try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { /* jsdom */ }
 }
 
 function updateStepper(step) {
@@ -90,11 +84,9 @@ function updateStepper(step) {
     el.classList.toggle('is-active', i === step);
     el.classList.toggle('is-done', i < step);
     if (num) {
-      if (i < step) {
-        num.innerHTML = '<span data-icon="check" aria-hidden="true"></span>';
-      } else {
-        num.textContent = String(i);
-      }
+      num.innerHTML = i < step
+        ? '<span data-icon="check" aria-hidden="true"></span>'
+        : String(i);
     }
   }
   safeRenderIcons(document.getElementById('stepper'));
@@ -103,40 +95,43 @@ function updateStepper(step) {
 /* ============================================================
    Paso 1 — Cabecera (selects en cascada)
    ============================================================ */
-function initCabeceraSelects() {
-  const unidadEl = document.getElementById('cab-unidad');
-  const facultadEl = document.getElementById('cab-facultad');
-  const carreraEl = document.getElementById('cab-carrera');
+async function initCabeceraSelects() {
+  const unidadSelect   = document.getElementById('cab-unidad');
+  const facultadSelect = document.getElementById('cab-facultad');
+  const carreraSelect  = document.getElementById('cab-carrera');
 
-  fillSelectOptions(unidadEl, getUnidades(), editingMalla?.unidad || '');
-  fillSelectOptions(facultadEl, getFacultades(unidadEl.value));
-  fillSelectOptions(carreraEl, getCarreras(unidadEl.value, facultadEl.value));
+  fillSelectOptions(unidadSelect, await getUnidades(), editingMalla?.unidad || '');
+  fillSelectOptions(facultadSelect, await getFacultades(unidadSelect.value));
+  fillSelectOptions(carreraSelect, await getCarreras(unidadSelect.value, facultadSelect.value));
 
-  unidadEl.addEventListener('change', () => {
-    fillSelectOptions(facultadEl, getFacultades(unidadEl.value));
-    fillSelectOptions(carreraEl, []);
+  unidadSelect.addEventListener('change', async (e) => {
+    const val = e.target.value;
+    fillSelectOptions(facultadSelect, await getFacultades(val));
+    fillSelectOptions(carreraSelect, []);
+    facultadSelect.disabled = !val;
+    carreraSelect.disabled  = true;
   });
 
-  facultadEl.addEventListener('change', () => {
-    fillSelectOptions(carreraEl, getCarreras(unidadEl.value, facultadEl.value));
+  facultadSelect.addEventListener('change', async (e) => {
+    const val = e.target.value;
+    fillSelectOptions(carreraSelect, await getCarreras(unidadSelect.value, val));
+    carreraSelect.disabled = !val;
   });
 
   if (editingMalla) {
-    unidadEl.value = editingMalla.unidad;
-    unidadEl.dispatchEvent(new Event('change'));
     document.getElementById('cab-facultad').value = editingMalla.facultad;
     document.getElementById('cab-facultad').dispatchEvent(new Event('change'));
     document.getElementById('cab-carrera').value = editingMalla.carrera;
 
-    const modKey = editingMalla.modalidad;
-    const radioValue = Object.entries(MODALIDAD_MAP).find(([, v]) => v === modKey)?.[0];
-    if (radioValue) {
-      const radio = document.querySelector(`input[name="modalidad"][value="${radioValue}"]`);
+    const modKey    = editingMalla.modalidad;
+    const radioVal  = Object.entries(MODALIDAD_MAP).find(([, v]) => v === modKey)?.[0];
+    if (radioVal) {
+      const radio = document.querySelector(`input[name="modalidad"][value="${radioVal}"]`);
       if (radio) radio.checked = true;
     }
 
-    document.getElementById('cab-periodo').value = editingMalla.periodo;
-    document.getElementById('cab-version').value = String(editingMalla.version).replace(/^v/, '');
+    document.getElementById('cab-periodo').value  = editingMalla.periodo;
+    document.getElementById('cab-version').value  = String(editingMalla.version).replace(/^v/, '');
 
     if (editingMalla.courses?.length) {
       state.courses = editingMalla.courses.map((c) => ({ ...c }));
@@ -145,30 +140,26 @@ function initCabeceraSelects() {
 }
 
 function captureCabecera() {
-  const val = (id) => document.getElementById(id).value.trim();
+  const val      = (id) => document.getElementById(id).value.trim();
   const modalidad = document.querySelector('input[name="modalidad"]:checked');
-  state.cabecera = {
-    unidad: val('cab-unidad'),
+  state.cabecera  = {
+    unidad:   val('cab-unidad'),
     facultad: val('cab-facultad'),
-    carrera: val('cab-carrera'),
+    carrera:  val('cab-carrera'),
     modalidad: modalidad ? normalizeModalidad(modalidad.value) : '',
-    periodo: val('cab-periodo'),
-    version: val('cab-version')
+    periodo:  val('cab-periodo'),
+    version:  val('cab-version')
   };
 }
 
 function showCabeceraErrors(errors) {
   const fieldMap = {
-    unidad: 'cab-unidad',
-    facultad: 'cab-facultad',
-    carrera: 'cab-carrera',
-    periodo: 'cab-periodo',
-    version: 'cab-version'
+    unidad: 'cab-unidad', facultad: 'cab-facultad', carrera: 'cab-carrera',
+    periodo: 'cab-periodo', version: 'cab-version'
   };
-
   Object.entries(fieldMap).forEach(([key, id]) => {
     const field = document.getElementById(id).closest('.field');
-    const err = field.querySelector('.field__error');
+    const err   = field.querySelector('.field__error');
     if (errors[key]) {
       field.classList.add('has-error');
       if (err) err.textContent = errors[key];
@@ -187,47 +178,36 @@ function validateCabeceraForm() {
 }
 
 /* ============================================================
-   Paso 3 — contexto + columnas Excel + tabla manual
+   Paso 3 — barra de contexto + tabla manual
    ============================================================ */
 function renderContext() {
-  const c = state.cabecera;
+  const c    = state.cabecera;
   const year = periodoYear(c.periodo);
   document.getElementById('ctx-title').textContent =
     c.carrera ? `${c.carrera}${year ? ' - Plan ' + year : ''}` : 'Nueva Malla';
-  document.getElementById('ctx-unidad').textContent = c.unidad || '—';
+  document.getElementById('ctx-unidad').textContent  = c.unidad  || '—';
   document.getElementById('ctx-carrera').textContent = c.carrera || '—';
   document.getElementById('ctx-periodo').textContent = c.periodo || '—';
   document.getElementById('ctx-version').textContent = formatVersion(c.version);
 }
 
-function renderFormatList() {
-  const cls = { ok: 'format-list__check', opt: 'format-list__check format-list__check--opt' };
-  const icon = { ok: 'check', opt: 'info' };
-  document.getElementById('format-list').innerHTML = FORMAT_COLUMNS.map((col) => {
-    const mark = col.status === 'na'
-      ? `<span class="format-list__check--na">—</span>`
-      : `<span class="${cls[col.status]}" data-icon="${icon[col.status]}"></span>`;
-    return `<div class="format-list__item"><span>${escapeHtml(col.label)}</span>${mark}</div>`;
-  }).join('');
-  safeRenderIcons(document.getElementById('format-list'));
-}
-
 function showStep3Sub() {
-  document.getElementById('step3-excel').hidden = state.tipo !== 'excel';
+  document.getElementById('step3-pdf').hidden    = state.tipo !== 'pdf';
   document.getElementById('step3-manual').hidden = state.tipo !== 'manual';
+  if (state.tipo === 'pdf') pdfFlow.reset();
 }
 
 function showCoursesError(message) {
   let el = document.getElementById('courses-error');
   if (!el) {
     el = document.createElement('div');
-    el.id = 'courses-error';
+    el.id        = 'courses-error';
     el.className = 'field__error courses-error';
     el.setAttribute('role', 'alert');
     document.getElementById('step3-manual').prepend(el);
   }
   el.textContent = message;
-  el.hidden = !message;
+  el.hidden      = !message;
 }
 
 function buildRow(c, i) {
@@ -238,7 +218,7 @@ function buildRow(c, i) {
 
   return `
     <tr data-index="${i}">
-      <td class="col-center"><select class="cell-select cell-num" style="padding-right: 18px" data-field="ciclo">${opts(cicloOpts, c.ciclo)}</select></td>
+      <td class="col-center"><select class="cell-select cell-num" style="padding-right:18px" data-field="ciclo">${opts(cicloOpts, c.ciclo)}</select></td>
       <td class="col-center"><input class="cell-num" data-field="ord" value="${c.ord}"></td>
       <td><input class="cell-code" data-field="codigo" value="${escapeHtml(c.codigo)}"></td>
       <td><input class="cell-name" data-field="nombre" value="${escapeHtml(c.nombre)}"></td>
@@ -266,13 +246,11 @@ function getActiveCourses() {
 }
 
 function renderCourses() {
-  const tbody = document.getElementById('course-tbody');
+  const tbody  = document.getElementById('course-tbody');
   const active = getActiveCourses();
-
   tbody.innerHTML = active.length
-    ? active.map((c, i) => buildRow(c, state.courses.indexOf(c))).join('')
-    : `<tr><td colspan="12" class="table-empty">No hay cursos. Añada filas o importe desde Excel.</td></tr>`;
-
+    ? active.map((c) => buildRow(c, state.courses.indexOf(c))).join('')
+    : `<tr><td colspan="12" class="table-empty">No hay cursos. Añada filas o use la opción PDF con IA.</td></tr>`;
   safeRenderIcons(tbody);
   recalcTotal();
   renderDeletedBanner();
@@ -280,14 +258,11 @@ function renderCourses() {
 
 function renderDeletedBanner() {
   const deleted = state.courses.filter((c) => c._deleted);
-  let banner = document.getElementById('deleted-banner');
-  if (!deleted.length) {
-    if (banner) banner.remove();
-    return;
-  }
+  let banner    = document.getElementById('deleted-banner');
+  if (!deleted.length) { if (banner) banner.remove(); return; }
   if (!banner) {
     banner = document.createElement('div');
-    banner.id = 'deleted-banner';
+    banner.id        = 'deleted-banner';
     banner.className = 'info-note info-note--warn';
     document.getElementById('step3-manual').querySelector('.course-toolbar').after(banner);
   }
@@ -305,20 +280,173 @@ function recalcTotal() {
 }
 
 /* ============================================================
+   PDF con IA — flujo inline en el Paso 3
+   ============================================================ */
+const pdfFlow = {
+  _file:      null,
+  _extracted: [],
+
+  _el: (id) => document.getElementById(id),
+
+  showState(id) {
+    ['pdf-state-upload', 'pdf-state-processing', 'pdf-state-review']
+      .forEach((s) => { document.getElementById(s).hidden = s !== id; });
+  },
+
+  reset() {
+    this._file      = null;
+    this._extracted = [];
+
+    const titleEl = this._el('ia-dropzone-title');
+    const fileEl  = this._el('ia-dropzone-file');
+    const inp     = this._el('ia-file-input');
+    const btn     = this._el('s3p-extract');
+    if (titleEl) titleEl.textContent = 'Arrastra tu PDF aquí';
+    if (fileEl)  fileEl.hidden = true;
+    if (inp)     inp.value = '';
+    if (btn)     btn.disabled = true;
+
+    const model     = getActiveVisionModel();
+    const badge     = this._el('pdf-model-badge');
+    const noModel   = this._el('pdf-state-nomodel');
+    if (badge)   badge.textContent = model ? `Modelo: ${model.nombre}` : '';
+    if (noModel) noModel.hidden = !!model;
+
+    this.showState('pdf-state-upload');
+  },
+
+  setFile(file) {
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      const err = this._el('pdf-file-error');
+      if (err) err.textContent = 'Solo se aceptan archivos PDF.';
+      return;
+    }
+    const err = this._el('pdf-file-error');
+    if (err) err.textContent = '';
+
+    this._file = file;
+    const titleEl = this._el('ia-dropzone-title');
+    const fileEl  = this._el('ia-dropzone-file');
+    if (titleEl) titleEl.textContent = `📄 ${file.name}`;
+    if (fileEl)  { fileEl.textContent = file.name; fileEl.hidden = false; }
+    this._el('s3p-extract').disabled = false;
+  },
+
+  async extract() {
+    const model   = getActiveVisionModel();
+    const noModel = this._el('pdf-state-nomodel');
+
+    if (!model) {
+      if (noModel) noModel.hidden = false;
+      alert('Configura un modelo de visión activo en Centro IA antes de continuar.');
+      return;
+    }
+    // Modelo encontrado: ocultar aviso si estaba visible
+    if (noModel) noModel.hidden = true;
+    if (!this._file) return;
+
+    this.showState('pdf-state-processing');
+    try {
+      const courses = await extractFromPdf(this._file, model, ({ phase, page, total }) => {
+        const msg = phase === 'render'
+          ? `Renderizando página ${page} de ${total}…`
+          : `Extrayendo cursos de página ${page} de ${total}… (puede tardar ~30 s por página)`;
+        document.getElementById('pdf-progress-text').textContent = msg;
+      });
+      this._extracted = courses;
+      this.renderReview(courses);
+    } catch (err) {
+      console.error('[PDF IA]', err);
+      // Mostrar error inline en lugar de sólo alert
+      this.showState('pdf-state-upload');
+      const errEl = this._el('pdf-file-error');
+      if (errEl) errEl.textContent = `Error: ${err.message}`;
+    }
+  },
+
+  renderReview(courses) {
+    const summary = this._el('pdf-review-summary');
+    const tbody   = this._el('pdf-review-tbody');
+    const nextBtn = this._el('s3p-next');
+
+    if (summary) {
+      summary.textContent = courses.length
+        ? `Se encontraron ${courses.length} curso(s). Revisa antes de continuar.`
+        : 'No se detectaron cursos. Prueba con otro PDF o usa el registro manual.';
+    }
+
+    if (tbody) {
+      tbody.innerHTML = courses.length
+        ? courses.map((c) => `
+            <tr>
+              <td class="col-center">${escapeHtml(String(c.ciclo))}</td>
+              <td class="col-center">${escapeHtml(String(c.ord))}</td>
+              <td><code>${escapeHtml(c.codigo)}</code></td>
+              <td>${escapeHtml(c.nombre)}</td>
+              <td class="col-center">${escapeHtml(c.cond)}</td>
+              <td class="col-center">${escapeHtml(String(c.cred))}</td>
+              <td class="col-center">${c.t}/${c.p}/${c.l}</td>
+            </tr>`).join('')
+        : '<tr><td colspan="7" class="table-empty">No se detectaron cursos en el PDF.</td></tr>';
+    }
+
+    if (nextBtn) nextBtn.disabled = !courses.length;
+    this.showState('pdf-state-review');
+  },
+
+  accept() {
+    if (!this._extracted.length) return;
+    state.courses = this._extracted.map((c) => ({ ...c }));
+    renderCourses();
+    showCoursesError('');
+  },
+
+  bindEvents() {
+    this._el('ia-pick-file').addEventListener('click', () =>
+      this._el('ia-file-input').click());
+
+    this._el('ia-file-input').addEventListener('change', (e) =>
+      this.setFile(e.target.files[0]));
+
+    const dz = this._el('ia-dropzone');
+    if (dz) {
+      ['dragenter', 'dragover'].forEach((ev) =>
+        dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add('is-drag'); }));
+      ['dragleave', 'drop'].forEach((ev) =>
+        dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove('is-drag'); }));
+      dz.addEventListener('drop', (e) => this.setFile(e.dataTransfer.files[0]));
+    }
+
+    this._el('s3p-back').addEventListener('click', () => goTo(2));
+    this._el('s3p-extract').addEventListener('click', () => this.extract());
+    this._el('s3p-retry').addEventListener('click', () => this.reset());
+    this._el('s3p-next').addEventListener('click', () => {
+      this.accept();
+      buildSummary();
+      goTo(4);
+    });
+  }
+};
+
+/* ============================================================
    Paso 4 — Resumen
    ============================================================ */
 function buildSummary() {
-  const c = state.cabecera;
+  const c    = state.cabecera;
   const rows = [
-    ['Unidad', c.unidad],
-    ['Facultad', c.facultad],
-    ['Carrera', c.carrera],
+    ['Unidad',    c.unidad],
+    ['Facultad',  c.facultad],
+    ['Carrera',   c.carrera],
     ['Modalidad', modalidadLabel(c.modalidad)],
-    ['Periodo', c.periodo],
-    ['Versión', formatVersion(c.version)]
+    ['Periodo',   c.periodo],
+    ['Versión',   formatVersion(c.version)]
   ];
   document.getElementById('summary-institucional').innerHTML = rows.map(([label, value]) =>
-    `<div class="summary-row"><span class="summary-row__label">${escapeHtml(label)}</span><span class="summary-row__value">${escapeHtml(value || '—')}</span></div>`
+    `<div class="summary-row">
+       <span class="summary-row__label">${escapeHtml(label)}</span>
+       <span class="summary-row__value">${escapeHtml(value || '—')}</span>
+     </div>`
   ).join('');
 
   document.getElementById('summary-curriculum').innerHTML = groupCoursesByCiclo(state.courses).map((g) => `
@@ -356,14 +484,14 @@ async function publishMalla() {
   }
 
   const payload = {
-    unidad: state.cabecera.unidad,
+    unidad:   state.cabecera.unidad,
     facultad: state.cabecera.facultad,
-    carrera: state.cabecera.carrera,
+    carrera:  state.cabecera.carrera,
     modalidad: state.cabecera.modalidad,
-    periodo: state.cabecera.periodo,
-    version: formatVersion(state.cabecera.version),
-    estado: 'activo',
-    courses: state.courses.filter((c) => !c._deleted).map((c) => ({ ...c }))
+    periodo:  state.cabecera.periodo,
+    version:  formatVersion(state.cabecera.version),
+    estado:   'activo',
+    courses:  state.courses.filter((c) => !c._deleted).map((c) => ({ ...c }))
   };
 
   if (state.editId) {
@@ -381,11 +509,13 @@ async function publishMalla() {
    Eventos
    ============================================================ */
 function bindEvents() {
+  /* Paso 1 */
   document.getElementById('s1-next').addEventListener('click', () => {
     if (!validateCabeceraForm()) return;
     goTo(2);
   });
 
+  /* Paso 2 — selección de tipo */
   document.querySelectorAll('.choice-card').forEach((card) => {
     card.addEventListener('click', () => {
       document.querySelectorAll('.choice-card').forEach((c) => c.classList.remove('is-selected'));
@@ -400,44 +530,24 @@ function bindEvents() {
     goTo(3);
   });
 
-  document.getElementById('s3e-back').addEventListener('click', () => goTo(2));
-  document.getElementById('s3e-next').addEventListener('click', () => {
-    if (!state.excelUploaded) {
-      const err = document.getElementById('excel-error');
-      if (err) err.textContent = 'Debe cargar un archivo Excel antes de continuar';
-      return;
-    }
-    const check = validateCourses(state.courses);
-    if (!check.ok) {
-      document.getElementById('excel-error').textContent = check.message;
-      return;
-    }
-    document.getElementById('excel-error').textContent = '';
-    buildSummary();
-    goTo(4);
-  });
-  bindDropzone();
+  /* Paso 3 — PDF flow */
+  pdfFlow.bindEvents();
 
+  /* Paso 3 — Manual */
   document.getElementById('s3m-back').addEventListener('click', () => goTo(2));
   document.getElementById('s3m-next').addEventListener('click', () => {
     const check = validateCourses(state.courses);
-    if (!check.ok) {
-      showCoursesError(check.message);
-      return;
-    }
+    if (!check.ok) { showCoursesError(check.message); return; }
     showCoursesError('');
     buildSummary();
     goTo(4);
   });
-  document.getElementById('s3m-import').addEventListener('click', () => {
-    state.tipo = 'excel';
-    showStep3Sub();
-  });
+
   document.getElementById('add-row').addEventListener('click', () => {
     state.courses.push({
-      ciclo: '', ord: getActiveCourses().length + 1, codigo: '', nombre: '',
-      cond: 'Obligatorio', cred: 0, t: 0, p: 0, l: 0, prereq: '',
-      sunedu: 'General', mencion: '', credMin: 0
+      ciclo: 'I', ord: getActiveCourses().length + 1, codigo: '', nombre: '',
+      cond: 'Obligatorio', cred: 0, t: 0, p: 0, l: 0,
+      prereq: '', sunedu: 'General', mencion: '', credMin: 0
     });
     renderCourses();
     showCoursesError('');
@@ -448,8 +558,8 @@ function bindEvents() {
     const cell = e.target.closest('[data-field]');
     if (!cell) return;
     const tr = e.target.closest('tr');
-    if (!tr) return;
-    const i = Number(tr.dataset.index);
+    if (!tr)   return;
+    const i   = Number(tr.dataset.index);
     state.courses[i][cell.dataset.field] = cell.value;
     if (cell.dataset.field === 'cred') recalcTotal();
   });
@@ -461,6 +571,7 @@ function bindEvents() {
     renderCourses();
   });
 
+  /* Paso 4 */
   document.getElementById('s4-back').addEventListener('click', () => goTo(3));
   document.getElementById('s4-publish').addEventListener('click', publishMalla);
 
@@ -470,56 +581,16 @@ function bindEvents() {
       alert('Generación de documento disponible cuando exista backend.');
     });
   });
-
-  document.querySelectorAll('.foot-link, .upload-card__head .btn--outline').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      alert('Descarga de plantilla disponible cuando exista backend.');
-    });
-  });
-}
-
-function bindDropzone() {
-  const dz = document.getElementById('dropzone');
-  const input = document.getElementById('file-input');
-  const fileLabel = document.getElementById('dropzone-file');
-  const excelError = document.getElementById('excel-error');
-
-  const processFile = (file) => {
-    if (!file) return;
-    const ext = file.name.split('.').pop()?.toLowerCase();
-    if (!['xlsx', 'xls'].includes(ext)) {
-      if (excelError) excelError.textContent = 'Solo se aceptan archivos .xlsx o .xls';
-      return;
-    }
-    fileLabel.textContent = `Archivo cargado: ${file.name}`;
-    fileLabel.hidden = false;
-    state.excelUploaded = true;
-    state.courses = mockParseExcel().map((c) => ({ ...c }));
-    if (excelError) excelError.textContent = '';
-  };
-
-  document.getElementById('dropzone-pick').addEventListener('click', () => input.click());
-  input.addEventListener('change', () => processFile(input.files[0]));
-
-  ['dragenter', 'dragover'].forEach((ev) =>
-    dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add('is-drag'); }));
-  ['dragleave', 'drop'].forEach((ev) =>
-    dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove('is-drag'); }));
-  dz.addEventListener('drop', (e) => processFile(e.dataTransfer.files[0]));
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Carga datos de la capa async antes de inicializar la UI (db.js)
   existingMallas = await db.getMallasUsil();
   if (editId) {
-    editingMalla = await db.getMallaUsilById(editId);
-    state.editId = editingMalla?.id || null;
+    editingMalla  = await db.getMallaUsilById(editId);
+    state.editId  = editingMalla?.id || null;
   }
 
-  initCabeceraSelects();
-  renderFormatList();
+  await initCabeceraSelects();
   renderCourses();
   bindEvents();
   if (state.editId) goTo(1);

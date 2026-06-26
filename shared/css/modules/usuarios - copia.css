@@ -1,0 +1,45 @@
+/* ============================================================
+   MÓDULO DE USUARIOS — Estilos específicos
+   ============================================================ */
+
+.usuarios-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--space-6);
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .usuarios-layout { grid-template-columns: 1fr; }
+}
+.stats-sidebar { display: flex; flex-direction: column; gap: var(--space-4); }
+
+.user-cell { display: flex; align-items: center; gap: var(--space-3); }
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--color-brand-100); color: var(--color-brand-800);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: var(--fw-bold); font-size: var(--fs-sm); flex-shrink: 0;
+}
+.user-cell__name { font-weight: var(--fw-semibold); color: var(--color-text-strong); }
+.user-cell__mail { font-size: var(--fs-sm); color: var(--color-text); opacity: 0.7; }
+
+/* Etiquetas de rol */
+.rol-tag {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: 2px var(--space-3); border-radius: var(--radius-pill);
+  font-size: var(--fs-sm); font-weight: var(--fw-semibold);
+}
+.rol-tag--admin       { background: var(--color-brand-100); color: var(--color-brand-800); }
+.rol-tag--coordinador { background: var(--color-success-bg); color: var(--color-success-text); }
+.rol-tag--director    { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.rol-tag--decano      { background: #ede9fe; color: #6d28d9; }
+.rol-tag--admision    { background: #e0f2fe; color: #0369a1; }
+.rol-tag--postulante  { background: var(--color-neutral-bg); color: var(--color-neutral-text); }
+
+/* Distribución por rol (sidebar) */
+.rol-dist { display: flex; flex-direction: column; gap: var(--space-3); }
+.rol-dist__row { display: flex; align-items: center; justify-content: space-between; font-size: var(--fs-md); }
+.rol-dist__count { font-weight: var(--fw-bold); color: var(--color-text-strong); }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+@media (max-width: 520px) { .form-grid { grid-template-columns: 1fr; } }

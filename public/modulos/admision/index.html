@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admisión — USIL ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/layout.css">
+  <link rel="stylesheet" href="../../../shared/css/components.css">
+  <link rel="stylesheet" href="../../../shared/css/wizard.css">
+  <link rel="stylesheet" href="admision.css">
+</head>
+<body>
+
+  <app-shell
+    active="admision"
+    page-title="Gestión de Admisión"
+    page-subtitle="Bandeja de solicitudes y registro de expedientes de convalidación."
+    page-action="Registrar Solicitud"
+    page-action-id="registrar-solicitud">
+
+    <!-- ── SECCIÓN PRINCIPAL: BANDEJA ─────────────────────── -->
+    <div id="section-bandeja" class="module-section is-active">
+
+      <div class="toolbar">
+        <div class="filters">
+          <div class="field">
+            <label class="field__label" for="filter-estado">Estado</label>
+            <select class="field__select" id="filter-estado">
+              <option value="">Todos los Estados</option>
+              <option value="PENDIENTE">Pendiente</option>
+              <option value="EN REVISIÓN">En Revisión</option>
+              <option value="APROBADA">Aprobada</option>
+            </select>
+          </div>
+          <div class="filters__actions">
+            <button class="btn btn--ghost" id="filter-clear">Limpiar</button>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__label">Solicitudes Pendientes</span>
+          <span class="stat-card__value" id="stat-pendientes">0</span>
+        </div>
+      </div>
+
+      <div class="card table-container">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Postulante</th>
+                <th>DNI/Pas.</th>
+                <th>Institución Origen</th>
+                <th>Carrera Destino</th>
+                <th>Fecha</th>
+                <th class="col-center">Estado</th>
+                <th class="col-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="table-bandeja-body">
+              <tr><td colspan="8" class="table-empty">Cargando solicitudes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span class="pagination__info" id="pagination-bandeja-info"></span>
+          <div class="pagination__pages" id="pagination-bandeja-pages"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECCIÓN: REGISTRO (wizard de 3 pasos) ──────────── -->
+    <div id="section-registro" class="module-section">
+
+      <ol class="stepper" id="reg-stepper">
+        <li class="step is-active" id="reg-step-1"><span class="step__num">1</span><span class="step__label">Postulante</span></li>
+        <li class="step__line"></li>
+        <li class="step" id="reg-step-2"><span class="step__num">2</span><span class="step__label">Académico</span></li>
+        <li class="step__line"></li>
+        <li class="step" id="reg-step-3"><span class="step__num">3</span><span class="step__label">Documentos</span></li>
+      </ol>
+
+      <form id="form-admision" novalidate>
+
+        <!-- ── PASO 1 · Datos del Postulante ──────────────── -->
+        <section class="wizard-step is-active" id="reg-panel-1">
+          <div class="form-section">
+            <h2 class="form-section__title">Datos del Postulante</h2>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+              <div class="field">
+                <label class="field__label" for="nombres">Nombres *</label>
+                <input type="text" class="field__input" id="nombres" placeholder="Ej. Juan Carlos">
+                <span class="field__error" data-error-for="nombres"></span>
+              </div>
+              <div class="field">
+                <label class="field__label" for="apellidos">Apellidos *</label>
+                <input type="text" class="field__input" id="apellidos" placeholder="Ej. Pérez Gómez">
+                <span class="field__error" data-error-for="apellidos"></span>
+              </div>
+              <div class="field">
+                <label class="field__label" for="dni">DNI / Pasaporte *</label>
+                <input type="text" class="field__input" id="dni" placeholder="Ej. 74839210">
+                <span class="field__error" data-error-for="dni"></span>
+              </div>
+              <div class="field">
+                <label class="field__label" for="correo">Correo Electrónico *</label>
+                <input type="email" class="field__input" id="correo" placeholder="Ej. jperez@gmail.com">
+                <span class="field__error" data-error-for="correo"></span>
+              </div>
+              <div class="field">
+                <label class="field__label" for="telefono">Teléfono</label>
+                <input type="text" class="field__input" id="telefono" placeholder="Ej. 987654321">
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-footer">
+            <button type="button" class="btn btn--outline" id="reg-cancel">
+              <span class="btn__icon" data-icon="chevronLeft"></span>Cancelar
+            </button>
+            <button type="button" class="btn btn--primary" id="reg-s1-next">
+              Continuar a Datos Académicos<span class="btn__icon" data-icon="chevronRight"></span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ── PASO 2 · Datos Académicos ──────────────────── -->
+        <section class="wizard-step" id="reg-panel-2">
+
+          <div class="form-section">
+            <h2 class="form-section__title">Institución de Origen</h2>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+              <div class="field">
+                <label class="field__label" for="inst-origen">Institución *</label>
+                <select class="field__select" id="inst-origen">
+                  <option value="">Seleccione Institución</option>
+                </select>
+                <span class="field__error" data-error-for="inst-origen"></span>
+              </div>
+              <div class="field">
+                <label class="field__label" for="carrera-origen">Carrera / Programa *</label>
+                <select class="field__select" id="carrera-origen" disabled>
+                  <option value="">Seleccione primero institución</option>
+                </select>
+                <span class="field__error" data-error-for="carrera-origen"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2 class="form-section__title">Programa Destino (USIL)</h2>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+              <div class="field">
+                <label class="field__label" for="unidad-destino">Unidad de Negocio *</label>
+                <select class="field__select" id="unidad-destino">
+                  <option value="">Seleccione Unidad</option>
+                </select>
+                <span class="field__error" data-error-for="unidad-destino"></span>
+              </div>
+              <div class="field">
+                <label class="field__label" for="facultad-destino">Facultad *</label>
+                <select class="field__select" id="facultad-destino" disabled>
+                  <option value="">Seleccione primero unidad</option>
+                </select>
+                <span class="field__error" data-error-for="facultad-destino"></span>
+              </div>
+              <div class="field">
+                <label class="field__label" for="carrera-destino">Carrera *</label>
+                <select class="field__select" id="carrera-destino" disabled>
+                  <option value="">Seleccione primero facultad</option>
+                </select>
+                <span class="field__error" data-error-for="carrera-destino"></span>
+              </div>
+              <div class="field">
+                <label class="field__label" for="malla-destino">Malla USIL (Destino) *</label>
+                <select class="field__select" id="malla-destino" disabled>
+                  <option value="">Seleccione primero carrera</option>
+                </select>
+                <span class="field__error" data-error-for="malla-destino"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-footer">
+            <button type="button" class="btn btn--outline" id="reg-s2-back">
+              <span class="btn__icon" data-icon="chevronLeft"></span>Atrás
+            </button>
+            <button type="button" class="btn btn--primary" id="reg-s2-next">
+              Continuar a Documentos<span class="btn__icon" data-icon="chevronRight"></span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ── PASO 3 · Documentos ────────────────────────── -->
+        <section class="wizard-step" id="reg-panel-3">
+
+          <div class="context-bar">
+            <span class="context-bar__title" id="ctx-postulante">—</span>
+            <div class="context-bar__meta">
+              <div>
+                <div class="context-meta__label">Institución Origen</div>
+                <div class="context-meta__value" id="ctx-inst-origen">—</div>
+              </div>
+              <div>
+                <div class="context-meta__label">Carrera Destino</div>
+                <div class="context-meta__value" id="ctx-carrera-destino">—</div>
+              </div>
+              <div>
+                <div class="context-meta__label">Malla</div>
+                <div class="context-meta__value" id="ctx-malla">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2 class="form-section__title">Documentos Requeridos</h2>
+
+            <div class="doc-row" id="doc-row-dni">
+              <div class="doc-row__icon" data-icon="file"></div>
+              <div class="doc-row__info">
+                <span class="doc-row__name">Copia de DNI / CE</span>
+                <span class="doc-row__file" id="file-label-dni">Sin archivo seleccionado</span>
+              </div>
+              <label class="doc-row__btn" for="file-input-dni">
+                <span class="btn__icon" data-icon="upload"></span>Seleccionar
+              </label>
+              <input type="file" id="file-input-dni" data-doc="dni" accept=".pdf,image/*" style="display:none">
+            </div>
+
+            <div class="doc-row" id="doc-row-matricula">
+              <div class="doc-row__icon" data-icon="file"></div>
+              <div class="doc-row__info">
+                <span class="doc-row__name">Constancia de 1ra Matrícula</span>
+                <span class="doc-row__file" id="file-label-matricula">Sin archivo seleccionado</span>
+              </div>
+              <label class="doc-row__btn" for="file-input-matricula">
+                <span class="btn__icon" data-icon="upload"></span>Seleccionar
+              </label>
+              <input type="file" id="file-input-matricula" data-doc="matricula" accept=".pdf,image/*" style="display:none">
+            </div>
+
+            <div class="doc-row" id="doc-row-record">
+              <div class="doc-row__icon" data-icon="file"></div>
+              <div class="doc-row__info">
+                <span class="doc-row__name">Récord Académico / Notas</span>
+                <span class="doc-row__file" id="file-label-record">Sin archivo seleccionado</span>
+              </div>
+              <label class="doc-row__btn" for="file-input-record">
+                <span class="btn__icon" data-icon="upload"></span>Seleccionar
+              </label>
+              <input type="file" id="file-input-record" data-doc="record" accept=".pdf,image/*" style="display:none">
+            </div>
+          </div>
+
+          <div class="wizard-footer">
+            <button type="button" class="btn btn--outline" id="reg-s3-back">
+              <span class="btn__icon" data-icon="chevronLeft"></span>Atrás
+            </button>
+            <button type="submit" class="btn btn--primary" id="btn-submit">
+              <span class="btn__icon" data-icon="send"></span>Registrar Solicitud
+            </button>
+          </div>
+        </section>
+
+      </form>
+    </div>
+
+    <!-- ── SECCIÓN: DETALLE ────────────────────────────────── -->
+    <div id="section-detalle" class="module-section">
+
+      <div class="det-nav">
+        <button class="btn btn--outline" id="btn-volver-bandeja">
+          <span class="btn__icon" data-icon="arrowLeft"></span>Volver a Bandeja
+        </button>
+        <div class="det-nav__title">
+          <span class="det-nav__label">SOLICITUD</span>
+          <h2 class="det-nav__id" id="detalle-titulo">#000000</h2>
+        </div>
+        <span class="badge det-nav__badge" id="detalle-estado">PENDIENTE</span>
+      </div>
+
+      <div class="det-hero card">
+        <div class="det-hero__avatar" id="det-avatar">--</div>
+        <div class="det-hero__main">
+          <span class="det-hero__name" id="det-postulante-nombre">—</span>
+          <span class="det-hero__email" id="det-postulante-correo">—</span>
+        </div>
+        <div class="det-hero__stats">
+          <div class="det-stat">
+            <span class="det-stat__label">DNI / Pasaporte</span>
+            <span class="det-stat__val" id="det-postulante-dni">—</span>
+          </div>
+          <div class="det-stat">
+            <span class="det-stat__label">Teléfono</span>
+            <span class="det-stat__val" id="det-postulante-telefono">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="det-academic">
+        <div class="det-card">
+          <div class="det-card__header">
+            <div class="det-card__icon-wrap" data-icon="building"></div>
+            <span class="det-card__title">Institución de Origen</span>
+          </div>
+          <div class="det-card__body">
+            <div class="det-field">
+              <span class="det-field__label">Institución</span>
+              <span class="det-field__val" id="det-origen-inst">—</span>
+            </div>
+            <div class="det-field">
+              <span class="det-field__label">Carrera / Programa</span>
+              <span class="det-field__val" id="det-origen-carrera">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="det-card">
+          <div class="det-card__header">
+            <div class="det-card__icon-wrap" data-icon="book"></div>
+            <span class="det-card__title">Programa Destino USIL</span>
+          </div>
+          <div class="det-card__body">
+            <div class="det-field-row">
+              <div class="det-field">
+                <span class="det-field__label">Unidad de Negocio</span>
+                <span class="det-field__val" id="det-destino-unidad">—</span>
+              </div>
+              <div class="det-field">
+                <span class="det-field__label">Facultad</span>
+                <span class="det-field__val" id="det-destino-facultad">—</span>
+              </div>
+            </div>
+            <div class="det-field-row">
+              <div class="det-field">
+                <span class="det-field__label">Carrera</span>
+                <span class="det-field__val" id="det-destino-carrera">—</span>
+              </div>
+              <div class="det-field">
+                <span class="det-field__label">Malla a Convalidar</span>
+                <span class="det-field__val" id="det-destino-malla">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="det-docs-card card">
+        <div class="det-card__header">
+          <div class="det-card__icon-wrap" data-icon="doc"></div>
+          <span class="det-card__title">Documentos Recibidos</span>
+        </div>
+        <div class="det-docs-row">
+          <div class="det-doc-item" id="det-doc-dni">
+            <div class="det-doc-item__icon" data-icon="file"></div>
+            <span class="det-doc-item__name">Copia de DNI / CE</span>
+            <span class="det-doc-item__badge doc-status"></span>
+          </div>
+          <div class="det-doc-item" id="det-doc-matricula">
+            <div class="det-doc-item__icon" data-icon="file"></div>
+            <span class="det-doc-item__name">Constancia 1ra Matrícula</span>
+            <span class="det-doc-item__badge doc-status"></span>
+          </div>
+          <div class="det-doc-item" id="det-doc-record">
+            <div class="det-doc-item__icon" data-icon="file"></div>
+            <span class="det-doc-item__name">Récord Académico / Notas</span>
+            <span class="det-doc-item__badge doc-status"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </app-shell>
+
+  <div id="toast" class="toast hidden">
+    <span class="toast__icon" data-icon="check"></span>
+    <span class="toast__msg">Solicitud registrada exitosamente.</span>
+  </div>
+
+  <script src="../../../shared/js/icons.js"></script>
+  <script src="../../../shared/js/nav-config.js"></script>
+  <script src="../../../shared/js/app-shell.js"></script>
+  <script type="module" src="/public/modulos/admision/script.js"></script>
+</body>
+</html>

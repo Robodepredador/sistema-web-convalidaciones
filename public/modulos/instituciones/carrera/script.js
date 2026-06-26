@@ -157,11 +157,6 @@ function bindEvents() {
     renderTable();
   });
 
-  document.addEventListener('app-action', (e) => {
-    if (e.detail === 'nueva-malla') {
-      window.location.href = `../malla-nueva/?inst=${institucionId}&carr=${carreraId}`;
-    }
-  });
 }
 
 document.addEventListener('DOMContentLoaded', init);
