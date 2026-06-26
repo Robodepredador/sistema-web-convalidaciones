@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulaciones — USIL ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/layout.css">
+  <link rel="stylesheet" href="../../../shared/css/components.css">
+  <style>
+    .sim-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .sim-stat-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+    }
+    .sim-stat-card__label {
+      font-size: var(--fs-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      font-weight: var(--fw-semibold);
+      letter-spacing: .04em;
+      margin-bottom: var(--space-1);
+    }
+    .sim-stat-card__value {
+      font-size: 28px;
+      font-weight: var(--fw-bold);
+      line-height: 1;
+    }
+    .det-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .det-nav__title { flex: 1; }
+    .det-nav__label {
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      font-weight: var(--fw-bold);
+      display: block;
+    }
+    .det-nav__id {
+      font-size: var(--fs-xl);
+      font-weight: var(--fw-bold);
+      color: var(--color-brand-800);
+      margin: 0;
+    }
+    .det-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .det-meta-card {
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+    }
+    .det-meta-card__label {
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      font-weight: var(--fw-bold);
+      margin-bottom: 4px;
+    }
+    .det-meta-card__value {
+      font-size: var(--fs-md);
+      font-weight: var(--fw-semibold);
+    }
+    .det-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin: var(--space-5) 0;
+    }
+    .det-stat-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-4);
+      text-align: center;
+    }
+    .det-stat-card__label {
+      font-size: var(--fs-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      font-weight: var(--fw-semibold);
+    }
+    .det-stat-card__value {
+      font-size: 24px;
+      font-weight: var(--fw-bold);
+      line-height: 1.2;
+      margin-top: 4px;
+    }
+    .det-actions {
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .obs-box {
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--fs-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+      display: none;
+    }
+    .obs-box.has-content { display: block; }
+  </style>
+</head>
+<body>
+
+  <app-shell
+    active="simulaciones"
+    page-title="Simulaciones de Convalidación"
+    page-subtitle="Documentos pre-convalidación generados por el coordinador para revisión del postulante."
+    page-action="Nueva Simulación"
+    page-action-id="nueva-simulacion">
+
+    <!-- ── SECCIÓN: BANDEJA ───────────────────────────────── -->
+    <div id="section-bandeja" class="module-section is-active">
+
+      <div class="sim-stats">
+        <div class="sim-stat-card">
+          <div class="sim-stat-card__label">Total</div>
+          <div class="sim-stat-card__value" id="stat-total" style="color:var(--color-brand-700);">0</div>
+        </div>
+        <div class="sim-stat-card">
+          <div class="sim-stat-card__label">Generadas</div>
+          <div class="sim-stat-card__value" id="stat-generadas" style="color:#b45309;">0</div>
+        </div>
+        <div class="sim-stat-card">
+          <div class="sim-stat-card__label">Enviadas al alumno</div>
+          <div class="sim-stat-card__value" id="stat-enviadas" style="color:var(--color-brand-600);">0</div>
+        </div>
+        <div class="sim-stat-card">
+          <div class="sim-stat-card__label">Aprobadas</div>
+          <div class="sim-stat-card__value" id="stat-aprobadas" style="color:var(--color-success-text);">0</div>
+        </div>
+      </div>
+
+      <div class="toolbar" style="grid-template-columns:1fr;">
+        <div class="filters">
+          <div class="field">
+            <label class="field__label" for="filter-busqueda">Buscar</label>
+            <input type="text" class="field__input" id="filter-busqueda" placeholder="Nombre, DNI o carrera…" style="min-width:220px;">
+          </div>
+          <div class="field">
+            <label class="field__label" for="filter-ciclo">Ciclo</label>
+            <select class="field__select" id="filter-ciclo">
+              <option value="">Todos los ciclos</option>
+              <option value="2024-I">2024-I</option>
+              <option value="2024-II">2024-II</option>
+              <option value="2025-I">2025-I</option>
+              <option value="2025-II">2025-II</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label" for="filter-estado">Estado</label>
+            <select class="field__select" id="filter-estado">
+              <option value="">Todos los estados</option>
+              <option value="BORRADOR">Borrador</option>
+              <option value="GENERADA">Generada</option>
+              <option value="ENVIADA_ALUMNO">Enviada al alumno</option>
+              <option value="APROBADA_COORD">Aprobada</option>
+              <option value="RECHAZADA">Rechazada</option>
+            </select>
+          </div>
+          <div class="filters__actions">
+            <button class="btn btn--ghost" id="filter-clear">Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card table-container">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Postulante</th>
+                <th>Institución Origen</th>
+                <th>Carrera USIL Destino</th>
+                <th class="col-center">Ciclo</th>
+                <th class="col-center">Avance</th>
+                <th class="col-center">Estado</th>
+                <th class="col-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="bandeja-tbody">
+              <tr><td colspan="7" class="table-empty">Cargando simulaciones…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECCIÓN: DETALLE ───────────────────────────────── -->
+    <div id="section-detalle" class="module-section">
+
+      <div class="det-nav">
+        <button class="btn btn--outline" id="btn-volver-bandeja">
+          <span class="btn__icon" data-icon="arrowLeft"></span>Volver a Bandeja
+        </button>
+        <div class="det-nav__title">
+          <span class="det-nav__label">SIMULACIÓN</span>
+          <h2 class="det-nav__id" id="det-titulo">—</h2>
+        </div>
+        <span class="badge" id="det-estado"></span>
+      </div>
+
+      <div class="det-meta-grid">
+        <div class="det-meta-card">
+          <div class="det-meta-card__label">Postulante</div>
+          <div class="det-meta-card__value" id="det-alumno">—</div>
+          <div style="font-size:var(--fs-sm);color:var(--color-text-muted);margin-top:2px;">
+            DNI: <span id="det-dni">—</span>
+          </div>
+          <div style="font-size:var(--fs-sm);color:var(--color-text-muted);">
+            <span id="det-correo">—</span>
+          </div>
+        </div>
+        <div class="det-meta-card">
+          <div class="det-meta-card__label">Institución de Origen</div>
+          <div class="det-meta-card__value" id="det-institucion">—</div>
+          <div style="font-size:var(--fs-sm);color:var(--color-text-muted);margin-top:2px;">
+            Ciclo postulación: <span id="det-ciclo" style="font-weight:600;">—</span>
+          </div>
+        </div>
+        <div class="det-meta-card">
+          <div class="det-meta-card__label">Carrera USIL Destino</div>
+          <div class="det-meta-card__value" id="det-carrera-usil">—</div>
+          <div style="font-size:var(--fs-sm);color:var(--color-text-muted);margin-top:2px;">
+            Generada el <span id="det-fecha">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="obs-box" class="obs-box">
+        <strong>Observaciones del coordinador:</strong> <span id="det-observaciones"></span>
+      </div>
+
+      <div class="card table-container">
+        <div style="padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);">
+          <h3 style="margin:0;font-size:var(--fs-md);color:var(--color-brand-800);">Tabla Comparativa de Equivalencias</h3>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th>Curso de Origen</th>
+                <th class="col-center">Cred.</th>
+                <th>Equivalente USIL</th>
+                <th class="col-center">Cred. USIL</th>
+                <th class="col-center">Similitud</th>
+                <th class="col-center">Estado</th>
+              </tr>
+            </thead>
+            <tbody id="detalle-tbody">
+              <tr><td colspan="7" class="table-empty">Sin datos</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="det-stats" id="detalle-stats"></div>
+
+      <div class="det-actions">
+        <button class="btn btn--primary" id="btn-enviar-alumno" disabled>
+          <span class="btn__icon" data-icon="send"></span>Enviar al alumno
+        </button>
+        <button class="btn btn--outline" id="btn-imprimir">
+          <span class="btn__icon" data-icon="doc"></span>Vista previa / Imprimir
+        </button>
+      </div>
+
+    </div>
+
+  </app-shell>
+
+  <div id="toast" class="toast hidden">
+    <span class="toast__icon" data-icon="check"></span>
+    <span class="toast__msg"></span>
+  </div>
+
+  <script src="../../../shared/js/icons.js"></script>
+  <script src="../../../shared/js/nav-config.js"></script>
+  <script src="../../../shared/js/app-shell.js"></script>
+  <script type="module" src="/public/modulos/simulaciones/script.js"></script>
+</body>
+</html>

@@ -222,6 +222,10 @@
   margin-top: var(--space-1);
 }
 
+/* ---------- Secciones de módulo (bandeja ↔ detalle) ---------- */
+.module-section        { display: none; }
+.module-section.is-active { display: block; }
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */

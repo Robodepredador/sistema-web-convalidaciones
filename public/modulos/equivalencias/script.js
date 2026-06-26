@@ -15,6 +15,9 @@ const state = {
   selectedExternoId: null,
   iaActiva: false,
 
+  _usingMockData: false,  // true cuando se usaron datos SENATI de demostración
+  _lastPdfText: '',       // texto extraído del último PDF (para validar institución)
+
   // Paso 1
   alumnoNombre: '',
   alumnoDni: '',
@@ -305,18 +308,46 @@ async function analyzeFile() {
 
   clearInterval(interval);
 
-  // Si la extracción no devolvió cursos, usar mock basado en SENATI
-  if (!cursos || cursos.length === 0) cursos = mockCoursesFallback();
+  // Si la extracción no devolvió cursos, ofrecer datos de demostración
+  if (!cursos || cursos.length === 0) {
+    const usarMock = confirm(
+      'No se pudieron extraer cursos del archivo adjunto.\n\n' +
+      '¿Cargar 41 cursos de ejemplo (SENATI) para continuar la demostración?\n\n' +
+      'Nota: en producción esto requeriría un archivo válido.'
+    );
+    if (!usarMock) {
+      UI.aiProcessing.style.display = 'none';
+      UI.fileReadyBar.style.display = 'flex';
+      return;
+    }
+    cursos = mockCoursesFallback();
+    state._usingMockData = true;
+  }
 
   // Pre-calcular sugerencia IA para cada curso externo
   state.cursosExternos = computeSuggestions(cursos, state.cursosUsil);
 
   UI.aiProcessing.style.display = 'none';
   UI.extractionSuccess.style.display = 'flex';
-  UI.extractionCountText.textContent =
-    `${state.cursosExternos.length} cursos identificados — listo para emparejar`;
+  UI.extractionCountText.textContent = state._usingMockData
+    ? `⚠ Modo demo — ${state.cursosExternos.length} cursos de ejemplo (archivo no procesado)`
+    : `${state.cursosExternos.length} cursos identificados — listo para emparejar`;
   safeRenderIcons(UI.extractionSuccess);
   validateStep1();
+
+  // Verificar que el archivo corresponda a la institución seleccionada (Bug 5)
+  if (cursos.length > 0 && !state._usingMockData && state._lastPdfText && state.institucionId) {
+    const insts = await db.getInstituciones();
+    const inst = insts.find(i => i.id === state.institucionId);
+    if (inst) {
+      const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+      const firstWord = norm(inst.nombre).split(/\s+/)[0];
+      if (firstWord.length > 3 && !norm(state._lastPdfText).includes(firstWord)) {
+        UI.extractionCountText.textContent +=
+          ' — ⚠ El archivo podría no corresponder a la institución seleccionada.';
+      }
+    }
+  }
 }
 
 // ─── EXTRACCIÓN REAL (PDF.js + SheetJS, carga diferida) ──────────────────────
@@ -371,6 +402,7 @@ async function readPDFText(file) {
 
     fullText += rows.join('\n') + '\n';
   }
+  state._lastPdfText = fullText;
   return fullText;
 }
 
@@ -758,6 +790,7 @@ window.markSinEquivalencia = async function (extId) {
   try {
     await db.createEquivalencia({
       cursoUsilId: null,
+      esDescarte: true,
       cursoExternoId: ce.id,
       institucionId: state.institucionId,
       carreraExternaId: null,
@@ -772,8 +805,10 @@ window.markSinEquivalencia = async function (extId) {
     });
     await loadEquivalencias();
     state.selectedExternoId = null;
+    state.selectedUsilId = null;
     UI.matchBar.style.opacity = '0';
     UI.matchBar.style.pointerEvents = 'none';
+    updateMallaUsil();
     renderCursosExternos();
     renderTable();
   } catch (err) {
@@ -812,7 +847,8 @@ function localSimilarity(a, b) {
   if (!A.size || !B.size) return 45;
   let inter = 0;
   A.forEach(w => { if (B.has(w)) inter++; });
-  return Math.round(45 + (inter / (A.size + B.size - inter)) * 53);
+  const jaccard = inter / (A.size + B.size - inter);
+  return Math.min(100, Math.round(45 + jaccard * 55));
 }
 
 function checkMatch() {
@@ -902,8 +938,7 @@ function renderTable() {
   }
 
   UI.tbody.innerHTML = [...filtradas].reverse().map(e => {
-    const usil = e.cursoUsil?.codigo ? e.cursoUsil : (e.cursoUsilSnapshot || {});
-    const ext = e.cursoExt?.codigo ? e.cursoExt : (e.cursoExtSnapshot || {});
+    const { usil, ext } = resolveCursos(e);
     const nota = ext.nota != null
       ? `<div style="font-size:11px;color:var(--color-text-muted);margin-top:2px;">Nota: ${ext.nota}</div>`
       : '';
@@ -988,8 +1023,7 @@ function renderResumen() {
     UI.resumenTbody.innerHTML = '<tr><td colspan="6" class="table-empty">No hay cursos emparejados para mostrar.</td></tr>';
   } else {
     UI.resumenTbody.innerHTML = [...emparejadas].reverse().map(e => {
-      const usil = e.cursoUsil?.codigo ? e.cursoUsil : (e.cursoUsilSnapshot || {});
-      const ext  = e.cursoExt?.codigo  ? e.cursoExt  : (e.cursoExtSnapshot  || {});
+      const { usil, ext } = resolveCursos(e);
       const pct  = e.porcentajeSimilitud;
       const pctColor = pct >= 85 ? 'var(--color-success-text)' : pct >= 70 ? '#b45309' : 'var(--color-error)';
       const pctBg    = pct >= 85 ? '#dcfce7' : pct >= 70 ? '#fef3c7' : '#fee2e2';
@@ -1021,7 +1055,7 @@ function renderResumen() {
 
   // Stats
   const creditosRecup = emparejadas.reduce((sum, e) => {
-    const usil = e.cursoUsil?.creditos != null ? e.cursoUsil : (e.cursoUsilSnapshot || {});
+    const { usil } = resolveCursos(e);
     return sum + (usil.creditos || 0);
   }, 0);
   const avgSim = emparejadas.length > 0
@@ -1073,6 +1107,8 @@ function resetWizardStep1() {
   state.institucionId = '';
   state.carreraUsilId = '';
   state.anioMalla = '2023';
+  state._usingMockData = false;
+  state._lastPdfText = '';
   resetFileState();
   validateStep1();
 }
@@ -1341,20 +1377,19 @@ function inferFacultadUsil(carreraDestino, facultadDestino) {
   );
   if (direct) return direct;
 
-  // Intento 2: keywords
-  if (/ingenier|sistemas|software|informatica|mecanica|ciberseg/.test(text)) {
-    return faculties.find(f => /ingenier/i.test(f)) || '';
+  // Intento 2: solapamiento de tokens contra los nombres reales de facultad
+  const tokenize = s => s.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .split(/\W+/).filter(w => w.length > 2);
+  const inputTokens = new Set(tokenize(text));
+  let best = '', bestScore = 0;
+  for (const fac of faculties) {
+    const facToks = tokenize(fac);
+    const overlap = facToks.filter(t => inputTokens.has(t)).length;
+    const score = facToks.length ? overlap / facToks.length : 0;
+    if (score > bestScore) { bestScore = score; best = fac; }
   }
-  if (/negocio|administracion|marketing|empresarial|contabilidad/.test(text)) {
-    return faculties.find(f => /negocio/i.test(f)) || '';
-  }
-  if (/derecho|legal|juridic/.test(text)) {
-    return faculties.find(f => /derecho/i.test(f)) || '';
-  }
-  if (/humanidades|comunicacion|turismo|gastronomia|hoteleria/.test(text)) {
-    return faculties.find(f => /humanidades/i.test(f)) || '';
-  }
-  return '';
+  return bestScore >= 0.3 ? best : '';
 }
 
 function atenderSolicitud(id) {

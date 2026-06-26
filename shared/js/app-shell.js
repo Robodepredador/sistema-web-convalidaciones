@@ -47,12 +47,13 @@ class AppShell extends HTMLElement {
             <div class="sidebar__tagline">Gestión Académica</div>
           </div>
 
+          ${actionText ? `
           <div class="sidebar__cta">
-            <button class="btn btn--primary btn--block" id="shell-new-convalidacion">
+            <button class="btn btn--primary btn--block" id="${actionId}">
               <span class="btn__icon" data-icon="plus"></span>
-              Nueva Convalidación
+              ${actionText}
             </button>
-          </div>
+          </div>` : ''}
 
           <nav class="sidebar__nav" aria-label="Navegación principal">
             ${this._renderNav(NAV_ITEMS, active)}

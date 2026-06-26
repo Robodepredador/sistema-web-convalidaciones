@@ -137,33 +137,6 @@ const SEED_DATA = {
     { id: '32', carreraId: '25', institucionId: '4', anioCodigo: 'Malla 2024-I', codigoVisible: 'UBA-SOC-24', totalCursos: 40, creditos: 180, fechaRegistro: '2023-09-28', estado: 'ACTIVA' }
   ],
 
-  mallasUsil: [
-    {
-      id: 'm-usil-1',
-      unidad: 'Pregrado',
-      facultad: 'Facultad de Ingeniería e Inteligencia Artificial',
-      carrera: 'INGENIERÍA DE SISTEMAS DE INFORMACIÓN',
-      modalidad: 'PRESENCIAL',
-      periodo: '2024-1',
-      version: 'v1.0',
-      codigoVisible: 'USIL-ISI-24',
-      anioCodigo: 'Malla 2024-I',
-      estado: 'activo'
-    },
-    {
-      id: 'm-usil-2',
-      unidad: 'Pregrado',
-      facultad: 'Facultad de Ciencias Empresariales',
-      carrera: 'Administración',
-      modalidad: 'PRESENCIAL',
-      periodo: '2024-1',
-      version: 'v1.0',
-      codigoVisible: 'USIL-ADM-24',
-      anioCodigo: 'Malla 2024-I',
-      estado: 'activo'
-    }
-  ],
-
   /* ============================================================
      CURSOS USIL — Malla interna de referencia
      ============================================================ */
@@ -347,10 +320,87 @@ const SEED_DATA = {
   ],
 
   /* ============================================================
+     SIMULACIONES — Pre-convalidaciones generadas por el Coordinador
+     ============================================================ */
+  simulaciones: [
+    {
+      id: 'SIM-001',
+      solicitudAdmisionId: 'SOL-1718912000000',
+      cicloPostulacion: '2024-I',
+      coordinadorId: 'U-002',
+      coordinadorNombre: 'María López',
+      alumno: { nombres: 'Ana María', apellidos: 'López Ruiz', dni: '71234567', correo: 'ana.lopez@gmail.com' },
+      carreraUsil: 'INGENIERÍA DE SISTEMAS DE INFORMACIÓN',
+      facultadUsil: 'Facultad de Ingeniería e Inteligencia Artificial',
+      mallaUsilId: 'm-usil-1',
+      institucionOrigenId: '3',
+      institucionOrigenNombre: 'SENATI',
+      equivalenciasIds: ['EQ01', 'EQ02', 'EQ03', 'EQ04', 'EQ05'],
+      creditosConvalidados: 23,
+      creditosTotalesMalla: 160,
+      cursosConvalidados: 5,
+      cursosSinEquivalencia: 2,
+      cursosTotalesOrigen: 10,
+      estado: 'GENERADA',
+      fechaCreacion: '2024-01-15T10:00:00.000Z',
+      fechaEnvio: null,
+      observacionesCoordinador: 'Expediente revisado. 5 equivalencias aprobadas con alta similitud de contenido.'
+    }
+  ],
+
+  /* ============================================================
+     CONVALIDACIONES — Actos administrativos oficiales de convalidación
+     Estado: PENDIENTE_FIRMA → FIRMADA → MEMORANDUM_EMITIDO → ARCHIVADA
+     ============================================================ */
+  convalidaciones: [
+    {
+      id: 'CONV-001',
+      simulacionId: 'SIM-001',
+      solicitudAdmisionId: 'SOL-1718912000000',
+      cicloPostulacion: '2024-I',
+      coordinadorId: 'U-002',
+      coordinadorNombre: 'María López',
+      coordinadorCargo: 'Coordinadora Académica',
+      alumno: { nombres: 'Ana María', apellidos: 'López Ruiz', dni: '71234567', correo: 'ana.lopez@gmail.com' },
+      carreraUsil: 'INGENIERÍA DE SISTEMAS DE INFORMACIÓN',
+      facultadUsil: 'Facultad de Ingeniería e Inteligencia Artificial',
+      mallaUsilId: 'm-usil-1',
+      institucionOrigenId: '3',
+      institucionOrigenNombre: 'SENATI',
+      equivalenciasSnapshot: [
+        { id: 'EQ01', cursoExtNombre: 'Matemática para Ingeniería', cursoExtCodigo: 'SEN-MAT100', cursoExtCreditos: 5, cursoUsilNombre: 'Matemática Básica', cursoUsilCodigo: 'USIL-MAT101', cursoUsilCreditos: 4, porcentajeSimilitud: 92, estado: 'APROBADA' },
+        { id: 'EQ02', cursoExtNombre: 'Física Aplicada', cursoExtCodigo: 'SEN-FIS100', cursoExtCreditos: 4, cursoUsilNombre: 'Física General', cursoUsilCodigo: 'USIL-FIS101', cursoUsilCreditos: 4, porcentajeSimilitud: 88, estado: 'APROBADA' },
+        { id: 'EQ03', cursoExtNombre: 'Programación Orientada a Objetos', cursoExtCodigo: 'SEN-POO301', cursoExtCreditos: 6, cursoUsilNombre: 'Desarrollo de Software I', cursoUsilCodigo: 'USIL-CS201', cursoUsilCreditos: 5, porcentajeSimilitud: 85, estado: 'APROBADA' },
+        { id: 'EQ04', cursoExtNombre: 'Estructuras de Datos y Algoritmos', cursoExtCodigo: 'SEN-EDD201', cursoExtCreditos: 5, cursoUsilNombre: 'Estructura de Datos', cursoUsilCodigo: 'USIL-CS202', cursoUsilCreditos: 5, porcentajeSimilitud: 95, estado: 'APROBADA' },
+        { id: 'EQ05', cursoExtNombre: 'Bases de Datos Relacionales', cursoExtCodigo: 'SEN-BDD301', cursoExtCreditos: 5, cursoUsilNombre: 'Base de Datos I', cursoUsilCodigo: 'USIL-CS203', cursoUsilCreditos: 4, porcentajeSimilitud: 90, estado: 'APROBADA' }
+      ],
+      creditosConvalidados: 23,
+      creditosTotalesMalla: 160,
+      cursosConvalidados: 5,
+      estado: 'PENDIENTE_FIRMA',
+      firmaAlumno: null,
+      fechaFirma: null,
+      numeroCorrelativo: null,
+      fechaMemorandum: null,
+      aprobadoPor: null,
+      aprobadoCargo: null,
+      auditoria: [
+        { accion: 'CREADA', usuario: 'María López', timestamp: '2024-01-15T10:00:00.000Z', detalle: 'Convalidación generada a partir de Simulación SIM-001' },
+        { accion: 'ENVIADA_ALUMNO', usuario: 'María López', timestamp: '2024-01-16T09:30:00.000Z', detalle: 'Simulación enviada al alumno para revisión' }
+      ],
+      fechaCreacion: '2024-01-15T10:00:00.000Z'
+    }
+  ],
+
+  /* ============================================================
      MALLAS USIL — Catálogo destino (planes de estudio internos USIL)
      Módulo 3. Antes vivían en shared/js/mallas/seed-data.js (store.js).
      ============================================================ */
   mallasUsil: [
+    // Mallas destino referenciadas por solicitudes_admision (admisión / equivalencias)
+    { id: 'm-usil-1', unidad: 'Pregrado', facultad: 'Facultad de Ingeniería e Inteligencia Artificial', carrera: 'INGENIERÍA DE SISTEMAS DE INFORMACIÓN', modalidad: 'PRESENCIAL', periodo: '2024-1', version: 'v1.0', codigoVisible: 'USIL-ISI-24', anioCodigo: 'Malla 2024-I', estado: 'activo' },
+    { id: 'm-usil-2', unidad: 'Pregrado', facultad: 'Facultad de Ciencias Empresariales', carrera: 'Administración', modalidad: 'PRESENCIAL', periodo: '2024-1', version: 'v1.0', codigoVisible: 'USIL-ADM-24', anioCodigo: 'Malla 2024-I', estado: 'activo' },
+    // Mallas del módulo de gestión de mallas
     { id: 'malla-001', unidad: 'Pregrado', facultad: 'Ingeniería y Ciencias', carrera: 'Ingeniería de Software', modalidad: 'presencial', periodo: '2024-01', version: 'v4.2.0', estado: 'activo' },
     { id: 'malla-002', unidad: 'Postgrado', facultad: 'Negocios y Economía', carrera: 'MBA Executive', modalidad: 'hibrido', periodo: '2023-02', version: 'v2.1.5', estado: 'activo' },
     { id: 'malla-003', unidad: 'Pregrado', facultad: 'Ciencias de la Salud', carrera: 'Medicina General', modalidad: 'presencial', periodo: '2022-01', version: 'v5.0.1', estado: 'inactivo' },
@@ -379,7 +429,7 @@ const SEED_DATA = {
 };
 
 // Versión del seed — si cambia, resetea la DB local
-const SEED_VERSION = 8;
+const SEED_VERSION = 11;
 
 /* ------------------------------------------------------------
    Almacenamiento — usa localStorage en el navegador y un
@@ -592,6 +642,7 @@ export const db = {
     if (filtros.institucionId) eqs = eqs.filter(e => e.institucionId === filtros.institucionId);
     if (filtros.carreraId) eqs = eqs.filter(e => e.carreraExternaId === filtros.carreraId);
     if (filtros.estado) eqs = eqs.filter(e => e.estado === filtros.estado);
+    if (filtros.excluirDescartes) eqs = eqs.filter(e => !e.esDescarte);
     if (filtros.busqueda) {
       const q = filtros.busqueda.toLowerCase();
       eqs = eqs.filter(e =>
@@ -833,6 +884,278 @@ export const db = {
     data.solicitudes_admision[idx] = { ...data.solicitudes_admision[idx], ...updates };
     setRawData(data);
     return data.solicitudes_admision[idx];
+  },
+
+  // --- Simulaciones ---
+  async getSimulaciones(filtros = {}) {
+    await delay();
+    const data = getRawData();
+    let sims = (data.simulaciones || []).filter(s => !s.eliminado);
+    if (filtros.estado) sims = sims.filter(s => s.estado === filtros.estado);
+    if (filtros.cicloPostulacion) sims = sims.filter(s => s.cicloPostulacion === filtros.cicloPostulacion);
+    if (filtros.coordinadorId) sims = sims.filter(s => s.coordinadorId === filtros.coordinadorId);
+    if (filtros.carreraUsil) sims = sims.filter(s => s.carreraUsil === filtros.carreraUsil);
+    if (filtros.busqueda) {
+      const q = filtros.busqueda.toLowerCase();
+      sims = sims.filter(s =>
+        `${s.alumno?.nombres} ${s.alumno?.apellidos}`.toLowerCase().includes(q) ||
+        (s.alumno?.dni || '').includes(q) ||
+        (s.carreraUsil || '').toLowerCase().includes(q)
+      );
+    }
+    return sims.sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
+  },
+
+  async getSimulacion(id) {
+    await delay();
+    const data = getRawData();
+    const sim = (data.simulaciones || []).find(s => s.id === id && !s.eliminado);
+    if (!sim) return null;
+    // Enriquecer con equivalencias
+    const eqs = (sim.equivalenciasIds || []).map(eqId => {
+      const eq = (data.equivalencias || []).find(e => e.id === eqId) || {};
+      const cursoExt = (data.cursosExternos || []).find(c => c.id === eq.cursoExternoId) || {};
+      const cursoUsil = (data.cursosUsil || []).find(c => c.id === eq.cursoUsilId) || {};
+      return { ...eq, cursoExt, cursoUsil };
+    });
+    return { ...sim, _equivalencias: eqs };
+  },
+
+  async createSimulacion(simData) {
+    await delay(600);
+    const data = getRawData();
+    if (!data.simulaciones) data.simulaciones = [];
+    const newSim = {
+      ...simData,
+      id: 'SIM-' + Date.now(),
+      estado: simData.estado || 'GENERADA',
+      fechaCreacion: new Date().toISOString(),
+      fechaEnvio: null,
+    };
+    data.simulaciones.unshift(newSim);
+    setRawData(data);
+    return newSim;
+  },
+
+  async updateSimulacion(id, updates) {
+    await delay(400);
+    const data = getRawData();
+    const idx = (data.simulaciones || []).findIndex(s => s.id === id);
+    if (idx === -1) return null;
+    data.simulaciones[idx] = { ...data.simulaciones[idx], ...updates };
+    setRawData(data);
+    return data.simulaciones[idx];
+  },
+
+  async enviarSimulacionAlAlumno(id) {
+    await delay(400);
+    const data = getRawData();
+    const idx = (data.simulaciones || []).findIndex(s => s.id === id);
+    if (idx === -1) throw new Error('Simulación no encontrada');
+    data.simulaciones[idx].estado = 'ENVIADA_ALUMNO';
+    data.simulaciones[idx].fechaEnvio = new Date().toISOString();
+    setRawData(data);
+    return data.simulaciones[idx];
+  },
+
+  // --- Convalidaciones ---
+  async getConvalidaciones(filtros = {}) {
+    await delay();
+    const data = getRawData();
+    let convs = (data.convalidaciones || []).filter(c => !c.eliminado);
+    if (filtros.estado)           convs = convs.filter(c => c.estado === filtros.estado);
+    if (filtros.cicloPostulacion) convs = convs.filter(c => c.cicloPostulacion === filtros.cicloPostulacion);
+    if (filtros.coordinadorId)    convs = convs.filter(c => c.coordinadorId === filtros.coordinadorId);
+    if (filtros.busqueda) {
+      const q = filtros.busqueda.toLowerCase();
+      convs = convs.filter(c =>
+        `${c.alumno?.nombres} ${c.alumno?.apellidos}`.toLowerCase().includes(q) ||
+        (c.alumno?.dni || '').includes(q) ||
+        (c.carreraUsil || '').toLowerCase().includes(q) ||
+        (c.numeroCorrelativo || '').toLowerCase().includes(q)
+      );
+    }
+    return convs.sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
+  },
+
+  async getConvalidacion(id) {
+    await delay();
+    const data = getRawData();
+    return (data.convalidaciones || []).find(c => c.id === id && !c.eliminado) || null;
+  },
+
+  async createConvalidacion(convData) {
+    await delay(600);
+    const data = getRawData();
+    if (!data.convalidaciones) data.convalidaciones = [];
+    const now = new Date().toISOString();
+    const newConv = {
+      ...convData,
+      id: 'CONV-' + Date.now(),
+      estado: convData.estado || 'PENDIENTE_FIRMA',
+      firmaAlumno: null,
+      fechaFirma: null,
+      numeroCorrelativo: null,
+      fechaMemorandum: null,
+      aprobadoPor: null,
+      aprobadoCargo: null,
+      auditoria: [{ accion: 'CREADA', usuario: convData.coordinadorNombre || 'Sistema', timestamp: now, detalle: 'Convalidación generada desde simulación' }],
+      fechaCreacion: now,
+    };
+    data.convalidaciones.unshift(newConv);
+    setRawData(data);
+    return newConv;
+  },
+
+  async updateConvalidacion(id, updates) {
+    await delay(400);
+    const data = getRawData();
+    const idx = (data.convalidaciones || []).findIndex(c => c.id === id);
+    if (idx === -1) return null;
+    data.convalidaciones[idx] = { ...data.convalidaciones[idx], ...updates };
+    setRawData(data);
+    return data.convalidaciones[idx];
+  },
+
+  async firmarConvalidacion(id) {
+    await delay(500);
+    const data = getRawData();
+    const idx = (data.convalidaciones || []).findIndex(c => c.id === id);
+    if (idx === -1) throw new Error('Convalidación no encontrada');
+    const conv = data.convalidaciones[idx];
+    if (conv.estado !== 'PENDIENTE_FIRMA') throw new Error('Solo se puede firmar una convalidación en estado PENDIENTE_FIRMA');
+    const now = new Date().toISOString();
+    const firma = 'FIRMA-' + Math.random().toString(36).slice(2, 10).toUpperCase() + '-' + Date.now();
+    conv.estado = 'FIRMADA';
+    conv.firmaAlumno = firma;
+    conv.fechaFirma = now;
+    conv.auditoria = [...(conv.auditoria || []), { accion: 'FIRMADA', usuario: conv.alumno?.nombres + ' ' + conv.alumno?.apellidos, timestamp: now, detalle: 'Alumno aceptó y firmó virtualmente el expediente' }];
+    setRawData(data);
+    return data.convalidaciones[idx];
+  },
+
+  async generarMemorandum(id, { aprobadoPor = 'Dr. Alberto Ruiz', cargo = 'Director Académico' } = {}) {
+    await delay(600);
+    const data = getRawData();
+    const idx = (data.convalidaciones || []).findIndex(c => c.id === id);
+    if (idx === -1) throw new Error('Convalidación no encontrada');
+    const conv = data.convalidaciones[idx];
+    if (conv.estado !== 'FIRMADA') throw new Error('Solo se puede emitir memorándum de una convalidación FIRMADA');
+    const now = new Date().toISOString();
+    const year = new Date().getFullYear();
+    const emitidas = (data.convalidaciones || []).filter(c => c.numeroCorrelativo).length;
+    const num = String(emitidas + 1).padStart(3, '0');
+    const correlativo = `MEM-${num}-${year}-USIL`;
+    conv.estado = 'MEMORANDUM_EMITIDO';
+    conv.numeroCorrelativo = correlativo;
+    conv.fechaMemorandum = now;
+    conv.aprobadoPor = aprobadoPor;
+    conv.aprobadoCargo = cargo;
+    conv.auditoria = [...(conv.auditoria || []), { accion: 'MEMORANDUM_EMITIDO', usuario: aprobadoPor, timestamp: now, detalle: `Memorándum ${correlativo} emitido y enviado a Registro Académico` }];
+    setRawData(data);
+    return data.convalidaciones[idx];
+  },
+
+  // --- Reportes ---
+  async getReporteEquivalencias(filtros = {}) {
+    await delay(100);
+    const data = getRawData();
+    const eqs  = (data.equivalencias || []).filter(e => !e.eliminado && !e.esDescarte);
+    const insts = data.instituciones || [];
+
+    const byInst = {};
+    eqs.forEach(eq => {
+      const id = eq.institucionId;
+      if (!byInst[id]) {
+        const inst = insts.find(i => i.id === id) || {};
+        byInst[id] = { institucionId: id, institucion: inst.nombre || id, pais: inst.pais || '—', total: 0, aprobadas: 0, pendientes: 0, rechazadas: 0, similitudTotal: 0, similitudCount: 0 };
+      }
+      const r = byInst[id];
+      r.total++;
+      if (eq.estado === 'APROBADA')   r.aprobadas++;
+      if (eq.estado === 'PENDIENTE')  r.pendientes++;
+      if (eq.estado === 'RECHAZADA')  r.rechazadas++;
+      if (eq.porcentajeSimilitud != null) { r.similitudTotal += eq.porcentajeSimilitud; r.similitudCount++; }
+    });
+
+    return Object.values(byInst)
+      .map(r => ({
+        ...r,
+        tasaAprobacion: r.total > 0 ? Math.round((r.aprobadas / r.total) * 100) : 0,
+        similitudPromedio: r.similitudCount > 0 ? Math.round(r.similitudTotal / r.similitudCount) : null,
+      }))
+      .sort((a, b) => b.total - a.total);
+  },
+
+  async getReporteConvalidaciones(filtros = {}) {
+    await delay(100);
+    const data = getRawData();
+    const convs = (data.convalidaciones || []).filter(c => !c.eliminado);
+    const sims  = (data.simulaciones   || []).filter(s => !s.eliminado);
+
+    const byCiclo = {};
+    [...convs, ...sims].forEach(item => {
+      const ciclo = item.cicloPostulacion || 'Sin ciclo';
+      if (!byCiclo[ciclo]) {
+        byCiclo[ciclo] = { ciclo, simulaciones: 0, convalidaciones: 0, pendienteFirma: 0, firmadas: 0, memEmitido: 0, creditosTotal: 0, cursosTotal: 0 };
+      }
+      const r = byCiclo[ciclo];
+      if ('estado' in item && item.equivalenciasSnapshot) {
+        // es convalidación
+        r.convalidaciones++;
+        if (item.estado === 'PENDIENTE_FIRMA') r.pendienteFirma++;
+        if (item.estado === 'FIRMADA')          r.firmadas++;
+        if (item.estado === 'MEMORANDUM_EMITIDO') r.memEmitido++;
+        r.creditosTotal += item.creditosConvalidados || 0;
+        r.cursosTotal   += item.cursosConvalidados   || 0;
+      } else {
+        r.simulaciones++;
+      }
+    });
+
+    return Object.values(byCiclo).sort((a, b) => b.ciclo.localeCompare(a.ciclo));
+  },
+
+  async getReporteActividad(filtros = {}) {
+    await delay(100);
+    const data  = getRawData();
+    const desde = filtros.desde ? new Date(filtros.desde) : null;
+    const hasta = filtros.hasta ? new Date(filtros.hasta) : null;
+
+    const inRango = fecha => {
+      if (!fecha) return false;
+      const d = new Date(fecha);
+      if (desde && d < desde) return false;
+      if (hasta && d > hasta) return false;
+      return true;
+    };
+
+    const solicitudes    = (data.solicitudes_admision || []).filter(s => inRango(s.fechaRegistro));
+    const simulaciones   = (data.simulaciones         || []).filter(s => !s.eliminado && inRango(s.fechaCreacion));
+    const convalidaciones = (data.convalidaciones     || []).filter(c => !c.eliminado && inRango(c.fechaCreacion));
+
+    // Agrupar por mes (YYYY-MM)
+    const byMes = {};
+    const registrar = (col, fecha, key) => {
+      const mes = fecha ? fecha.slice(0, 7) : null;
+      if (!mes) return;
+      if (!byMes[mes]) byMes[mes] = { mes, solicitudes: 0, simulaciones: 0, convalidaciones: 0 };
+      byMes[mes][key]++;
+    };
+    solicitudes.forEach(s    => registrar(solicitudes,    s.fechaRegistro,  'solicitudes'));
+    simulaciones.forEach(s   => registrar(simulaciones,   s.fechaCreacion,  'simulaciones'));
+    convalidaciones.forEach(c => registrar(convalidaciones, c.fechaCreacion, 'convalidaciones'));
+
+    return {
+      resumen: {
+        solicitudes: solicitudes.length,
+        simulaciones: simulaciones.length,
+        convalidaciones: convalidaciones.length,
+        creditosConvalidados: convalidaciones.reduce((s, c) => s + (c.creditosConvalidados || 0), 0),
+        cursosConvalidados: convalidaciones.reduce((s, c) => s + (c.cursosConvalidados || 0), 0),
+      },
+      porMes: Object.values(byMes).sort((a, b) => a.mes.localeCompare(b.mes)),
+    };
   },
 
   // --- USIL Catalog ---

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convalidaciones — USIL ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../../shared/css/base.css">
+  <link rel="stylesheet" href="../../../shared/css/layout.css">
+  <link rel="stylesheet" href="../../../shared/css/components.css">
+  <style>
+    .conv-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .conv-stat-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+    }
+    .conv-stat-card__label {
+      font-size: var(--fs-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      font-weight: var(--fw-semibold);
+      letter-spacing: .04em;
+      margin-bottom: var(--space-1);
+    }
+    .conv-stat-card__value {
+      font-size: 28px;
+      font-weight: var(--fw-bold);
+      line-height: 1;
+    }
+
+    /* Detalle */
+    .det-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .det-nav__title { flex: 1; }
+    .det-nav__label {
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      font-weight: var(--fw-bold);
+      display: block;
+    }
+    .det-nav__id {
+      font-size: var(--fs-xl);
+      font-weight: var(--fw-bold);
+      color: var(--color-brand-800);
+      margin: 0;
+    }
+    .det-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .det-meta-card {
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+    }
+    .det-meta-card__label {
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      font-weight: var(--fw-bold);
+      margin-bottom: 4px;
+    }
+    .det-meta-card__value {
+      font-size: var(--fs-md);
+      font-weight: var(--fw-semibold);
+    }
+    .det-actions {
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: var(--space-5);
+    }
+
+    /* Timeline de auditoría */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      padding-left: 28px;
+      margin: var(--space-5) 0;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: var(--color-border);
+    }
+    .timeline-item {
+      position: relative;
+      padding: 0 0 var(--space-4) 16px;
+    }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--color-brand-600);
+      border: 2px solid var(--color-surface);
+      box-shadow: 0 0 0 2px var(--color-brand-200);
+    }
+    .timeline-item.is-done::before { background: var(--color-success-text); }
+    .timeline-item.is-pending::before { background: var(--color-border); }
+    .timeline-item__accion {
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text-primary);
+    }
+    .timeline-item__meta {
+      font-size: var(--fs-xs);
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    /* Firma virtual */
+    .firma-box {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--fs-sm);
+      color: var(--color-success-text);
+      margin: var(--space-4) 0;
+      display: none;
+    }
+    .firma-box.is-visible { display: block; }
+    .firma-box strong { display: block; margin-bottom: 2px; }
+    .firma-code {
+      font-family: monospace;
+      font-size: 11px;
+      color: #15803d;
+      background: #dcfce7;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <app-shell
+    active="convalidaciones"
+    page-title="Convalidaciones Oficiales"
+    page-subtitle="Actos administrativos de convalidación firmados y con memorándum emitido."
+    page-action="Nueva Convalidación"
+    page-action-id="nueva-convalidacion">
+
+    <!-- ── SECCIÓN: BANDEJA ───────────────────────────────── -->
+    <div id="section-bandeja" class="module-section is-active">
+
+      <div class="conv-stats">
+        <div class="conv-stat-card">
+          <div class="conv-stat-card__label">Total</div>
+          <div class="conv-stat-card__value" id="stat-total" style="color:var(--color-brand-700);">0</div>
+        </div>
+        <div class="conv-stat-card">
+          <div class="conv-stat-card__label">Pendiente de Firma</div>
+          <div class="conv-stat-card__value" id="stat-pendiente" style="color:#b45309;">0</div>
+        </div>
+        <div class="conv-stat-card">
+          <div class="conv-stat-card__label">Firmadas</div>
+          <div class="conv-stat-card__value" id="stat-firmadas" style="color:var(--color-brand-600);">0</div>
+        </div>
+        <div class="conv-stat-card">
+          <div class="conv-stat-card__label">Memorándum Emitido</div>
+          <div class="conv-stat-card__value" id="stat-mem" style="color:var(--color-success-text);">0</div>
+        </div>
+      </div>
+
+      <div class="toolbar" style="grid-template-columns:1fr;">
+        <div class="filters">
+          <div class="field">
+            <label class="field__label" for="filter-busqueda">Buscar</label>
+            <input type="text" class="field__input" id="filter-busqueda" placeholder="Nombre, DNI, N° memorándum…" style="min-width:240px;">
+          </div>
+          <div class="field">
+            <label class="field__label" for="filter-ciclo">Ciclo</label>
+            <select class="field__select" id="filter-ciclo">
+              <option value="">Todos los ciclos</option>
+              <option value="2024-I">2024-I</option>
+              <option value="2024-II">2024-II</option>
+              <option value="2025-I">2025-I</option>
+              <option value="2025-II">2025-II</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label" for="filter-estado">Estado</label>
+            <select class="field__select" id="filter-estado">
+              <option value="">Todos los estados</option>
+              <option value="PENDIENTE_FIRMA">Pendiente de Firma</option>
+              <option value="FIRMADA">Firmada</option>
+              <option value="MEMORANDUM_EMITIDO">Memorándum Emitido</option>
+              <option value="ARCHIVADA">Archivada</option>
+            </select>
+          </div>
+          <div class="filters__actions">
+            <button class="btn btn--ghost" id="filter-clear">Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card table-container">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>N° Memorándum</th>
+                <th>Postulante</th>
+                <th>Carrera USIL Destino</th>
+                <th class="col-center">Ciclo</th>
+                <th class="col-center">Cursos</th>
+                <th class="col-center">Estado</th>
+                <th class="col-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="bandeja-tbody">
+              <tr><td colspan="8" class="table-empty">Cargando convalidaciones…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECCIÓN: DETALLE ───────────────────────────────── -->
+    <div id="section-detalle" class="module-section">
+
+      <div class="det-nav">
+        <button class="btn btn--outline" id="btn-volver-bandeja">
+          <span class="btn__icon" data-icon="arrowLeft"></span>Volver a Bandeja
+        </button>
+        <div class="det-nav__title">
+          <span class="det-nav__label">CONVALIDACIÓN</span>
+          <h2 class="det-nav__id" id="det-titulo">—</h2>
+        </div>
+        <span class="badge" id="det-estado"></span>
+      </div>
+
+      <div class="det-meta-grid">
+        <div class="det-meta-card">
+          <div class="det-meta-card__label">Postulante</div>
+          <div class="det-meta-card__value" id="det-alumno">—</div>
+          <div style="font-size:var(--fs-sm);color:var(--color-text-muted);margin-top:2px;">
+            DNI: <span id="det-dni">—</span>
+          </div>
+          <div style="font-size:var(--fs-sm);color:var(--color-text-muted);">
+            <span id="det-correo">—</span>
+          </div>
+        </div>
+        <div class="det-meta-card">
+          <div class="det-meta-card__label">Institución de Origen</div>
+          <div class="det-meta-card__value" id="det-institucion">—</div>
+          <div style="font-size:var(--fs-sm);color:var(--color-text-muted);margin-top:2px;">
+            Ciclo: <span id="det-ciclo" style="font-weight:600;">—</span>
+          </div>
+        </div>
+        <div class="det-meta-card">
+          <div class="det-meta-card__label">Carrera USIL Destino</div>
+          <div class="det-meta-card__value" id="det-carrera">—</div>
+          <div style="font-size:var(--fs-sm);color:var(--color-text-muted);margin-top:2px;">
+            <span id="det-mem-num"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Firma virtual -->
+      <div id="firma-box" class="firma-box">
+        <strong>Firma virtual recibida</strong>
+        Código de firma: <span id="firma-code" class="firma-code">—</span>
+        &nbsp;·&nbsp; Fecha: <span id="firma-fecha">—</span>
+      </div>
+
+      <!-- Tabla de equivalencias convalidadas -->
+      <div class="card table-container">
+        <div style="padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);">
+          <h3 style="margin:0;font-size:var(--fs-md);color:var(--color-brand-800);">Equivalencias Convalidadas (Snapshot)</h3>
+          <p style="margin:4px 0 0;font-size:var(--fs-xs);color:var(--color-text-muted);">
+            Registro inmutable al momento de la convalidación.
+          </p>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th>Cód. Origen</th>
+                <th>Curso de Origen</th>
+                <th class="col-center">Cred.</th>
+                <th>Cód. USIL</th>
+                <th>Equivalente USIL</th>
+                <th class="col-center">Cred.</th>
+                <th class="col-center">Similitud</th>
+              </tr>
+            </thead>
+            <tbody id="detalle-tbody">
+              <tr><td colspan="8" class="table-empty">Sin datos</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Timeline de auditoría -->
+      <div style="margin-top:var(--space-5);">
+        <h3 style="font-size:var(--fs-md);color:var(--color-brand-800);margin-bottom:var(--space-3);">Trayectoria del Expediente</h3>
+        <div id="timeline" class="timeline"></div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="det-actions">
+        <button class="btn btn--primary" id="btn-firmar" disabled>
+          <span class="btn__icon" data-icon="check"></span>Registrar Firma del Alumno
+        </button>
+        <button class="btn btn--primary" id="btn-memorandum" disabled>
+          <span class="btn__icon" data-icon="doc"></span>Emitir Memorándum
+        </button>
+        <button class="btn btn--outline" id="btn-imprimir" disabled>
+          <span class="btn__icon" data-icon="doc"></span>Imprimir Memorándum
+        </button>
+      </div>
+
+    </div>
+
+  </app-shell>
+
+  <div id="toast" class="toast hidden">
+    <span class="toast__icon" data-icon="check"></span>
+    <span class="toast__msg"></span>
+  </div>
+
+  <!-- Modal de confirmación de firma -->
+  <div id="modal-firma" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">Registrar Firma Virtual</h3>
+        <button class="modal__close" id="modal-firma-close">&times;</button>
+      </div>
+      <div class="modal__body">
+        <p>Se registrará la aceptación y firma virtual del alumno para la presente convalidación.</p>
+        <p style="font-size:var(--fs-sm);color:var(--color-text-muted);">
+          Se generará un código de firma único que quedará vinculado al expediente de forma permanente.
+        </p>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--ghost" id="modal-firma-cancel">Cancelar</button>
+        <button class="btn btn--primary" id="modal-firma-confirm">Confirmar Firma</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../../shared/js/icons.js"></script>
+  <script src="../../../shared/js/nav-config.js"></script>
+  <script src="../../../shared/js/app-shell.js"></script>
+  <script type="module" src="/public/modulos/convalidaciones/script.js"></script>
+</body>
+</html>
