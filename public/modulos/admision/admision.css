@@ -121,41 +121,6 @@
 
 .doc-row__btn .btn__icon { width: 13px; height: 13px; }
 
-/* ── Toast ────────────────────────────────────────────────── */
-.toast {
-  position: fixed;
-  bottom: var(--space-6);
-  right: var(--space-6);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  box-shadow: var(--shadow-xl);
-  padding: var(--space-4) var(--space-5);
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  z-index: 1000;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.toast.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(12px);
-}
-
-.toast__icon { color: var(--color-success); }
-.toast__icon svg { width: 22px; height: 22px; }
-
-.toast__msg {
-  font-size: var(--fs-md);
-  font-weight: var(--fw-semibold);
-  color: var(--color-text-strong);
-}
-
-/* ── badge--info (faltaba) ────────────────────────────────── */
-.badge--info { background: #dbeafe; color: #1d4ed8; }
-
 /* ── Detalle: nav bar ─────────────────────────────────────── */
 .det-nav {
   display: flex;

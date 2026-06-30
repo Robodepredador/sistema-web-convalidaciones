@@ -29,7 +29,8 @@ import {
   totalCreditos,
   groupCoursesByCiclo
 } from '../../../shared/js/mallas/validation.js';
-import { getActiveVisionModel } from '../../../shared/js/ia/ai-config.js';
+import { getActiveVisionModel, getAnyActiveModel, getModels } from '../../../shared/js/ia/ai-config.js';
+import { parseSheetFile } from '../../../shared/js/mallas/sheet-parser.js';
 import { extractFromPdf } from '../../../shared/js/ia/pdf-extractor.js';
 
 const params = new URLSearchParams(window.location.search);
@@ -193,8 +194,10 @@ function renderContext() {
 
 function showStep3Sub() {
   document.getElementById('step3-pdf').hidden    = state.tipo !== 'pdf';
+  document.getElementById('step3-sheet').hidden  = state.tipo !== 'sheet';
   document.getElementById('step3-manual').hidden = state.tipo !== 'manual';
-  if (state.tipo === 'pdf') pdfFlow.reset();
+  if (state.tipo === 'pdf')   pdfFlow.reset();
+  if (state.tipo === 'sheet') sheetFlow.reset();
 }
 
 function showCoursesError(message) {
@@ -310,7 +313,23 @@ const pdfFlow = {
     const badge     = this._el('pdf-model-badge');
     const noModel   = this._el('pdf-state-nomodel');
     if (badge)   badge.textContent = model ? `Modelo: ${model.nombre}` : '';
-    if (noModel) noModel.hidden = !!model;
+    if (noModel) {
+      noModel.hidden = !!model;
+      if (!model) {
+        const allModels   = getModels();
+        const hasAnyActive = allModels.some(m => m.activo);
+        const msgEl = noModel.querySelector('span:last-child');
+        if (msgEl) {
+          if (!allModels.length) {
+            msgEl.innerHTML = 'No hay modelos de IA configurados. <a href="/public/modulos/centro-ia/" style="color:var(--color-brand-800);font-weight:600">Ir a Centro IA</a> y agrega un modelo con capacidad de <b>Visión</b>.';
+          } else if (hasAnyActive) {
+            msgEl.innerHTML = 'El modelo activo no tiene capacidad de <b>Visión</b>. En <a href="/public/modulos/centro-ia/" style="color:var(--color-brand-800);font-weight:600">Centro IA</a>, edita el modelo y marca la casilla <b>Visión</b>.';
+          } else {
+            msgEl.innerHTML = 'Ningún modelo está activo. En <a href="/public/modulos/centro-ia/" style="color:var(--color-brand-800);font-weight:600">Centro IA</a>, activa un modelo con capacidad de <b>Visión</b>.';
+          }
+        }
+      }
+    }
 
     this.showState('pdf-state-upload');
   },
@@ -386,7 +405,7 @@ const pdfFlow = {
               <td>${escapeHtml(c.nombre)}</td>
               <td class="col-center">${escapeHtml(c.cond)}</td>
               <td class="col-center">${escapeHtml(String(c.cred))}</td>
-              <td class="col-center">${c.t}/${c.p}/${c.l}</td>
+              <td class="col-center">${(c.t || 0) + (c.p || 0) + (c.l || 0)}</td>
             </tr>`).join('')
         : '<tr><td colspan="7" class="table-empty">No se detectaron cursos en el PDF.</td></tr>';
     }
@@ -423,8 +442,169 @@ const pdfFlow = {
     this._el('s3p-retry').addEventListener('click', () => this.reset());
     this._el('s3p-next').addEventListener('click', () => {
       this.accept();
-      buildSummary();
-      goTo(4);
+      // Ir a edición manual para revisar/corregir antes del resumen
+      document.getElementById('step3-pdf').hidden    = true;
+      document.getElementById('step3-manual').hidden = false;
+    });
+  }
+};
+
+/* ============================================================
+   Sheet Flow — importar desde Excel / CSV
+   ============================================================ */
+const sheetFlow = {
+  _courses: [],
+
+  _el: (id) => document.getElementById(id),
+
+  reset() {
+    this._courses = [];
+    const title      = this._el('sheet-dropzone-title');
+    const fileEl     = this._el('sheet-dropzone-file');
+    const inp        = this._el('sheet-file-input');
+    const errEl      = this._el('sheet-file-error');
+    const preview    = this._el('sheet-preview');
+    const processing = this._el('sheet-state-processing');
+    const importBtn  = this._el('s3s-import');
+    const badge      = this._el('sheet-model-badge');
+
+    if (title)      title.textContent = 'Arrastra tu archivo aquí';
+    if (fileEl)     fileEl.hidden = true;
+    if (inp)        inp.value = '';
+    if (errEl)      errEl.textContent = '';
+    if (preview)    preview.hidden = true;
+    if (processing) processing.hidden = true;
+    if (importBtn)  { importBtn.disabled = true; importBtn.innerHTML = 'Usar estos cursos<span class="btn__icon" data-icon="chevronRight"></span>'; safeRenderIcons(importBtn); }
+
+    // Badge: muestra si hay modelo activo disponible para esta tarea
+    const model = getAnyActiveModel();
+    if (badge) badge.textContent = model ? `IA: ${model.nombre}` : 'Sin IA · detección por encabezados';
+  },
+
+  async setFile(file) {
+    if (!file) return;
+    const ext   = file.name.split('.').pop().toLowerCase();
+    const errEl = this._el('sheet-file-error');
+
+    if (!['xlsx', 'xls', 'csv'].includes(ext)) {
+      if (errEl) errEl.textContent = 'Formato no soportado. Usa .xlsx, .xls o .csv';
+      return;
+    }
+    if (errEl) errEl.textContent = '';
+
+    const titleEl    = this._el('sheet-dropzone-title');
+    const fileEl     = this._el('sheet-dropzone-file');
+    const preview    = this._el('sheet-preview');
+    const processing = this._el('sheet-state-processing');
+    const importBtn  = this._el('s3s-import');
+    const progressEl = this._el('sheet-progress-text');
+
+    if (titleEl) titleEl.textContent = `📄 ${file.name}`;
+    if (fileEl)  { fileEl.textContent = file.name; fileEl.hidden = false; }
+    if (preview)    preview.hidden    = true;
+    if (importBtn)  importBtn.disabled = true;
+
+    const model = getAnyActiveModel();
+
+    // Mostrar spinner mientras procesa
+    if (processing) processing.hidden = false;
+    if (progressEl) progressEl.textContent = model ? 'Enviando al modelo de IA…' : 'Leyendo archivo…';
+
+    try {
+      const { courses, detectedFields, usedAI } = await parseSheetFile(
+        file,
+        model,
+        ({ batch, total }) => {
+          if (progressEl) progressEl.textContent = total > 1
+            ? `IA procesando lote ${batch} de ${total}…`
+            : 'IA analizando cursos…';
+        }
+      );
+      this._courses = courses;
+      if (processing) processing.hidden = true;
+      this._renderPreview(courses, detectedFields, usedAI);
+    } catch (e) {
+      if (processing) processing.hidden = true;
+      if (errEl) errEl.textContent = `Error al procesar el archivo: ${e.message}`;
+    }
+  },
+
+  _renderPreview(courses, detectedFields, usedAI) {
+    const preview   = this._el('sheet-preview');
+    const summary   = this._el('sheet-review-summary');
+    const tbody     = this._el('sheet-review-tbody');
+    const importBtn = this._el('s3s-import');
+
+    if (summary) {
+      let msg;
+      if (!courses.length) {
+        msg = usedAI
+          ? 'El modelo no encontró cursos en el archivo. Revisa que el formato sea un plan de estudios.'
+          : 'No se detectaron cursos. Verifica que el archivo tenga encabezados reconocibles (Ciclo, Código, Nombre, Créditos…).';
+      } else {
+        msg = usedAI
+          ? `El modelo de IA detectó <b>${courses.length}</b> curso(s). Revisa antes de continuar.`
+          : `Se encontraron <b>${courses.length}</b> curso(s) por encabezados.`;
+        const missing = ['ciclo', 'codigo', 'nombre', 'cred'].filter(f => !detectedFields.includes(f));
+        if (!usedAI && missing.length) {
+          msg += ` Columnas no detectadas: <b>${missing.join(', ')}</b> — se usarán valores por defecto.`;
+        }
+      }
+      summary.innerHTML = msg;
+    }
+
+    if (tbody) {
+      tbody.innerHTML = courses.length
+        ? courses.map(c => `
+            <tr>
+              <td class="col-center">${escapeHtml(String(c.ciclo))}</td>
+              <td class="col-center">${escapeHtml(String(c.ord))}</td>
+              <td><code>${escapeHtml(c.codigo)}</code></td>
+              <td>${escapeHtml(c.nombre)}</td>
+              <td class="col-center">${escapeHtml(c.cond)}</td>
+              <td class="col-center">${escapeHtml(String(c.cred))}</td>
+              <td class="col-center">${(c.t || 0) + (c.p || 0) + (c.l || 0)}</td>
+            </tr>`).join('')
+        : '<tr><td colspan="7" class="table-empty">Sin cursos detectados.</td></tr>';
+    }
+
+    if (preview)   preview.hidden = false;
+    if (importBtn) {
+      importBtn.disabled = !courses.length;
+      importBtn.innerHTML = 'Usar estos cursos<span class="btn__icon" data-icon="chevronRight"></span>';
+      safeRenderIcons(importBtn);
+    }
+  },
+
+  accept() {
+    if (!this._courses.length) return;
+    state.courses = this._courses.map(c => ({ ...c }));
+    renderCourses();
+    showCoursesError('');
+  },
+
+  bindEvents() {
+    this._el('sheet-pick-file').addEventListener('click', () =>
+      this._el('sheet-file-input').click());
+
+    this._el('sheet-file-input').addEventListener('change', e =>
+      this.setFile(e.target.files[0]));
+
+    const dz = this._el('sheet-dropzone');
+    if (dz) {
+      ['dragenter', 'dragover'].forEach(ev =>
+        dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('is-drag'); }));
+      ['dragleave', 'drop'].forEach(ev =>
+        dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('is-drag'); }));
+      dz.addEventListener('drop', e => this.setFile(e.dataTransfer.files[0]));
+    }
+
+    this._el('s3s-back').addEventListener('click', () => goTo(2));
+    this._el('s3s-import').addEventListener('click', () => {
+      this.accept();
+      // Ir a edición manual para revisar/corregir antes del resumen
+      document.getElementById('step3-sheet').hidden  = true;
+      document.getElementById('step3-manual').hidden = false;
     });
   }
 };
@@ -532,6 +712,9 @@ function bindEvents() {
 
   /* Paso 3 — PDF flow */
   pdfFlow.bindEvents();
+
+  /* Paso 3 — Sheet flow */
+  sheetFlow.bindEvents();
 
   /* Paso 3 — Manual */
   document.getElementById('s3m-back').addEventListener('click', () => goTo(2));

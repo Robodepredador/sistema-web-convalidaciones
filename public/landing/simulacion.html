@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulación de Convalidación — USIL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/components.css">
+  <link rel="stylesheet" href="../../shared/css/wizard.css">
+  <link rel="stylesheet" href="./landing.css">
+</head>
+<body class="sim-page">
+
+  <!-- ── NAV ────────────────────────────────────────────────── -->
+  <nav class="sim-nav">
+    <a href="./index.html" class="sim-nav__back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Volver
+    </a>
+    <div class="sim-nav__sep"></div>
+    <div class="ln-nav__brand">
+      <div class="ln-nav__logo-mark">U</div>
+      <div class="ln-nav__name">USIL <span>Convalidaciones</span></div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ───────────────────────────────────────────────── -->
+  <main class="sim-main">
+
+    <div class="sim-header">
+      <h1 class="sim-header__title">Simulación de Convalidación con IA</h1>
+      <p class="sim-header__sub">Completa los pasos para obtener tu análisis personalizado</p>
+    </div>
+
+    <!-- Stepper (pasos 1-5; 6 y 7 son pantallas de transición) -->
+    <div class="sim-stepper-wrap" id="stepper-wrap">
+      <ol class="stepper" id="sim-stepper">
+        <li class="step is-active" id="step-ind-1">
+          <span class="step__num">1</span>
+          <span class="step__label">Datos personales</span>
+        </li>
+        <li class="step__line"></li>
+        <li class="step" id="step-ind-2">
+          <span class="step__num">2</span>
+          <span class="step__label">Institución</span>
+        </li>
+        <li class="step__line"></li>
+        <li class="step" id="step-ind-3">
+          <span class="step__num">3</span>
+          <span class="step__label">Documentos</span>
+        </li>
+        <li class="step__line"></li>
+        <li class="step" id="step-ind-4">
+          <span class="step__num">4</span>
+          <span class="step__label">Carrera USIL</span>
+        </li>
+        <li class="step__line"></li>
+        <li class="step" id="step-ind-5">
+          <span class="step__num">5</span>
+          <span class="step__label">Confirmación</span>
+        </li>
+      </ol>
+    </div>
+
+    <!-- ── PASO 1: DATOS PERSONALES ─────────────────────────── -->
+    <div class="wizard-step is-active" id="paso-1">
+      <div class="form-section">
+        <h2 class="form-section__title">Datos personales</h2>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="field">
+            <label class="field__label" for="p1-nombres">Nombres *</label>
+            <input type="text" class="field__input" id="p1-nombres" placeholder="Ingresa tus nombres">
+            <span class="field__error" data-error-for="p1-nombres"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="p1-apellidos">Apellidos *</label>
+            <input type="text" class="field__input" id="p1-apellidos" placeholder="Ingresa tus apellidos">
+            <span class="field__error" data-error-for="p1-apellidos"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="p1-tipo-doc">Tipo de documento *</label>
+            <select class="field__select" id="p1-tipo-doc">
+              <option value="">Seleccionar…</option>
+              <option value="DNI">DNI</option>
+              <option value="CARNET_EXT">Carnet de extranjería</option>
+              <option value="PASAPORTE">Pasaporte</option>
+              <option value="OTRO">Otro</option>
+            </select>
+            <span class="field__error" data-error-for="p1-tipo-doc"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="p1-num-doc">N° de documento *</label>
+            <input type="text" class="field__input" id="p1-num-doc" placeholder="Ej. 71234567" maxlength="20">
+            <span class="field__error" data-error-for="p1-num-doc"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="p1-email">Correo electrónico *</label>
+            <input type="email" class="field__input" id="p1-email" placeholder="tucorreo@ejemplo.com">
+            <span class="field__error" data-error-for="p1-email"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="p1-telefono">Teléfono / Celular *</label>
+            <input type="tel" class="field__input" id="p1-telefono" placeholder="Ej. 987654321">
+            <span class="field__error" data-error-for="p1-telefono"></span>
+          </div>
+        </div>
+      </div>
+      <div class="wizard-footer">
+        <span></span>
+        <button class="btn btn--primary" id="btn-paso1-sig">
+          Continuar
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── PASO 2: INSTITUCIÓN DE ORIGEN ────────────────────── -->
+    <div class="wizard-step" id="paso-2">
+      <div class="form-section">
+        <h2 class="form-section__title">Institución de origen</h2>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="field">
+            <label class="field__label" for="p2-tipo-inst">Tipo de institución *</label>
+            <select class="field__select" id="p2-tipo-inst">
+              <option value="">Seleccionar…</option>
+              <option value="UNIVERSIDAD">Universidad</option>
+              <option value="INSTITUTO">Instituto técnico / tecnológico</option>
+              <option value="OTRO">Otro</option>
+            </select>
+            <span class="field__error" data-error-for="p2-tipo-inst"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="p2-nombre-inst">Nombre de la institución *</label>
+            <input type="text" class="field__input" id="p2-nombre-inst" placeholder="Ej. Universidad de Lima" list="inst-datalist">
+            <datalist id="inst-datalist" id="p2-inst-datalist"></datalist>
+            <span class="field__error" data-error-for="p2-nombre-inst"></span>
+          </div>
+          <div class="field" style="grid-column:1/-1;">
+            <label class="field__label" for="p2-carrera">Carrera / Programa de origen *</label>
+            <input type="text" class="field__input" id="p2-carrera" placeholder="Ej. Ingeniería de Software">
+            <span class="field__error" data-error-for="p2-carrera"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="p2-anio-ingreso">Año de ingreso *</label>
+            <select class="field__select" id="p2-anio-ingreso" id="p2-anio-ingreso"></select>
+            <span class="field__error" data-error-for="p2-anio-ingreso"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="p2-anio-egreso">Año de egreso (o estimado)</label>
+            <select class="field__select" id="p2-anio-egreso"></select>
+          </div>
+        </div>
+      </div>
+      <div class="wizard-footer">
+        <button class="btn btn--outline" id="btn-paso2-ant">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Atrás
+        </button>
+        <button class="btn btn--primary" id="btn-paso2-sig">
+          Continuar
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── PASO 3: DOCUMENTOS ────────────────────────────────── -->
+    <div class="wizard-step" id="paso-3">
+      <div class="form-section">
+        <h2 class="form-section__title">Carga de documentos</h2>
+        <div class="info-note" style="margin-bottom:var(--space-5);">
+          <svg class="info-note__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span>Los documentos se usan únicamente para la simulación. Acepta formatos <b>PDF, JPG, PNG</b> (máx. 10 MB por archivo).</span>
+        </div>
+
+        <!-- Zona drag & drop -->
+        <div class="dropzone" id="upload-zone">
+          <div class="dropzone__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 16 12 12 8 16"></polyline>
+              <line x1="12" y1="12" x2="12" y2="21"></line>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+            </svg>
+          </div>
+          <div class="dropzone__title">Arrastra los archivos aquí</div>
+          <div class="dropzone__hint">o haz clic para seleccionar desde tu dispositivo</div>
+          <input type="file" id="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none;">
+          <button class="btn btn--outline btn--sm" id="btn-select-files" type="button" style="margin-top:var(--space-3);">
+            Seleccionar archivos
+          </button>
+        </div>
+
+        <!-- Lista de archivos cargados -->
+        <ul class="upload-file-list" id="file-list"></ul>
+
+        <!-- Requisitos -->
+        <ul class="req-list" style="margin-top:var(--space-5);">
+          <li class="req-list__item">
+            <span class="req-badge req-badge--oblig">Obligatorio</span>
+            Certificado de estudios oficial (con notas)
+          </li>
+          <li class="req-list__item">
+            <span class="req-badge req-badge--oblig">Obligatorio</span>
+            Material académico / Plan de estudios
+          </li>
+          <li class="req-list__item">
+            <span class="req-badge req-badge--rec">Recomendado</span>
+            Sílabos de los cursos a convalidar (mejora precisión IA)
+          </li>
+        </ul>
+      </div>
+      <div class="wizard-footer">
+        <button class="btn btn--outline" id="btn-paso3-ant">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Atrás
+        </button>
+        <button class="btn btn--primary" id="btn-paso3-sig">
+          Continuar
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── PASO 4: CARRERA USIL DESTINO ─────────────────────── -->
+    <div class="wizard-step" id="paso-4">
+      <div class="form-section">
+        <h2 class="form-section__title">Carrera USIL destino</h2>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="field">
+            <label class="field__label" for="p4-facultad">Facultad *</label>
+            <select class="field__select" id="p4-facultad">
+              <option value="">Seleccionar facultad…</option>
+            </select>
+            <span class="field__error" data-error-for="p4-facultad"></span>
+          </div>
+          <div class="field">
+            <label class="field__label" for="p4-carrera">Carrera *</label>
+            <select class="field__select" id="p4-carrera" disabled>
+              <option value="">Primero selecciona una facultad</option>
+            </select>
+            <span class="field__error" data-error-for="p4-carrera"></span>
+          </div>
+        </div>
+        <div id="p4-info" style="display:none;margin-top:var(--space-4);">
+          <div class="info-note">
+            <svg class="info-note__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <div>
+              <b id="p4-carrera-nombre">—</b>
+              <br><span style="font-size:var(--fs-sm);color:var(--color-text-muted);" id="p4-facultad-nombre">—</span>
+              <br><span style="font-size:var(--fs-sm);color:var(--color-text);" id="p4-info-text">
+                La IA analizará la compatibilidad de tus cursos con la malla curricular de esta carrera.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wizard-footer">
+        <button class="btn btn--outline" id="btn-paso4-ant">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Atrás
+        </button>
+        <button class="btn btn--primary" id="btn-paso4-sig">
+          Revisar resumen
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── PASO 5: CONFIRMACIÓN ──────────────────────────────── -->
+    <div class="wizard-step" id="paso-5">
+      <div class="form-section" style="border:none;padding:0;box-shadow:none;background:transparent;">
+        <h2 class="form-section__title">Confirma tu simulación</h2>
+        <div class="confirm-grid" id="confirm-grid">
+          <!-- Generado por JS -->
+        </div>
+        <div class="info-note info-note--warn">
+          <svg class="info-note__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <span>Al enviar autorizas que USIL utilice esta información para generar tu simulación. Los datos se almacenan de forma segura y no se compartirán con terceros.</span>
+        </div>
+      </div>
+      <div class="wizard-footer">
+        <button class="btn btn--outline" id="btn-paso5-ant">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Atrás
+        </button>
+        <button class="btn btn--primary" id="btn-enviar-sim" style="padding:14px 32px;font-size:var(--fs-lg);font-weight:700;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          Enviar Simulación IA
+        </button>
+      </div>
+    </div>
+
+    <!-- ── PASO 6: PROCESANDO ─────────────────────────────────── -->
+    <div class="wizard-step" id="paso-6">
+      <div class="proc-screen">
+        <div class="proc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+          </svg>
+        </div>
+        <div class="proc-title">Analizando tu perfil académico…</div>
+        <div class="proc-sub">La IA está procesando tus documentos y comparando con la malla USIL</div>
+        <div class="proc-bar-wrap">
+          <div class="proc-bar-fill" id="proc-bar"></div>
+        </div>
+        <div class="proc-steps-list">
+          <div class="proc-step-item" id="proc-s1">
+            <div class="proc-step-dot"></div>
+            Recibiendo documentos
+          </div>
+          <div class="proc-step-item" id="proc-s2">
+            <div class="proc-step-dot"></div>
+            Extrayendo cursos del certificado
+          </div>
+          <div class="proc-step-item" id="proc-s3">
+            <div class="proc-step-dot"></div>
+            Comparando con malla USIL
+          </div>
+          <div class="proc-step-item" id="proc-s4">
+            <div class="proc-step-dot"></div>
+            Calculando similitudes
+          </div>
+          <div class="proc-step-item" id="proc-s5">
+            <div class="proc-step-dot"></div>
+            Generando informe de resultados
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PASO 7: RESULTADOS ─────────────────────────────────── -->
+    <div class="wizard-step" id="paso-7">
+
+      <div class="result-hero" id="result-hero">
+        <div class="result-hero__label">Cursos convalidables</div>
+        <div class="result-hero__pct" id="result-pct">—%</div>
+        <div class="result-hero__sub" id="result-sub">de tus cursos tienen equivalente en la malla USIL</div>
+      </div>
+
+      <div class="result-stats" id="result-stats">
+        <!-- Generado por JS -->
+      </div>
+
+      <div class="card table-container" style="margin-top:var(--space-5);">
+        <div style="padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);">
+          <h3 style="margin:0;font-size:var(--fs-md);color:var(--color-brand-800);font-weight:700;">
+            Tabla de Equivalencias Preliminares
+          </h3>
+          <p style="margin:4px 0 0;font-size:var(--fs-xs);color:var(--color-text-muted);">
+            Análisis generado por IA. Sujeto a validación del coordinador académico.
+          </p>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:var(--fs-md);">
+            <thead>
+              <tr style="background:var(--color-surface-alt);text-align:left;">
+                <th style="padding:10px 12px;font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted);font-weight:600;">Curso de origen</th>
+                <th style="padding:10px 12px;font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted);font-weight:600;">Equivalente USIL</th>
+                <th style="padding:10px 12px;font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted);font-weight:600;text-align:center;">Créditos</th>
+                <th style="padding:10px 12px;font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted);font-weight:600;text-align:center;">Similitud</th>
+                <th style="padding:10px 12px;font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted);font-weight:600;text-align:center;">Estado</th>
+              </tr>
+            </thead>
+            <tbody id="result-tbody">
+              <tr><td colspan="5" style="padding:40px;text-align:center;color:var(--color-text-muted);">Procesando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="result-cta">
+        <div class="result-cta__title">¿Deseas iniciar el trámite oficial?</div>
+        <div class="result-cta__sub">
+          Esta simulación ha sido registrada con el código <strong id="result-id">—</strong>.
+          Un coordinador académico de USIL la revisará y te contactará para confirmar las equivalencias.
+        </div>
+        <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+          <a href="./index.html" class="btn btn--outline">Volver al inicio</a>
+          <button class="btn btn--primary" id="btn-nueva-sim">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 .49-3.56"></path></svg>
+            Hacer otra simulación
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module" src="/public/landing/simulacion.js"></script>
+</body>
+</html>

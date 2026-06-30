@@ -384,13 +384,30 @@
       opacity: .5;
       cursor: default;
     }
+
+    /* ── Panel documentos del solicitante ── */
+    .sol-doc-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .sol-doc-row:last-child { border-bottom: none; }
+    .sol-doc-row__icon  { color: var(--color-text-muted); flex-shrink: 0; }
+    .sol-doc-row__label { flex: 1; font-weight: var(--fw-medium); font-size: var(--fs-sm); }
+    .sol-doc-row__file  { font-size: var(--fs-xs); color: var(--color-text-muted); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sol-doc-row__btn   { flex-shrink: 0; }
+    .sol-doc-row--missing .sol-doc-row__label { color: var(--color-text-muted); }
   </style>
 </head>
 
 <body>
 
   <app-shell active="equivalencias" page-title="Gestión de Equivalencias"
-    page-subtitle="Diccionario académico: cruce de cursos externos con cursos USIL (memoria institucional).">
+    page-subtitle="Diccionario académico: cruce de cursos externos con cursos USIL (memoria institucional)."
+    page-action="Nueva Equivalencia"
+    page-action-id="nueva-equivalencia">
 
     <!-- Pestañas del módulo -->
     <div class="eq-tabs-nav">
@@ -475,6 +492,18 @@
 
     <!-- ═══ PESTAÑA: Nueva Equivalencia (wizard) ═══ -->
     <div id="eq-tab-nueva" class="eq-tab-content">
+
+      <!-- Panel de documentos — visible solo cuando se atiende una solicitud -->
+      <div id="solicitud-docs-panel" class="card" style="margin-bottom:var(--space-5)" hidden>
+        <div style="padding:var(--space-4) var(--space-5) var(--space-3);border-bottom:1px solid var(--color-border)">
+          <h3 style="margin:0;font-size:var(--fs-md);font-weight:var(--fw-semibold);display:flex;align-items:center;gap:var(--space-2)">
+            <span data-icon="file" aria-hidden="true"></span>
+            Documentos del Solicitante
+          </h3>
+        </div>
+        <div id="solicitud-docs-list" style="padding:0 var(--space-5) var(--space-3)"></div>
+      </div>
+
       <div class="wizard-container">
 
         <!-- Stepper -->
@@ -779,6 +808,11 @@
         <!-- acciones inyectadas -->
       </div>
     </div>
+  </div>
+
+  <div id="toast" class="toast hidden">
+    <span class="toast__icon" data-icon="check"></span>
+    <span class="toast__msg"></span>
   </div>
 
   <script src="../../../shared/js/icons.js"></script>

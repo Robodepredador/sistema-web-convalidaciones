@@ -345,6 +345,52 @@ const SEED_DATA = {
       fechaCreacion: '2024-01-15T10:00:00.000Z',
       fechaEnvio: null,
       observacionesCoordinador: 'Expediente revisado. 5 equivalencias aprobadas con alta similitud de contenido.'
+    },
+    {
+      id: 'SIM-002',
+      solicitudAdmisionId: 'SOL-1718912000001',
+      cicloPostulacion: '2024-II',
+      coordinadorId: 'U-003',
+      coordinadorNombre: 'Jorge Díaz',
+      alumno: { nombres: 'Carlos', apellidos: 'Mendoza', dni: '78889999', correo: 'cmendoza@hotmail.com' },
+      carreraUsil: 'Administración',
+      facultadUsil: 'Facultad de Ciencias Empresariales',
+      mallaUsilId: 'm-usil-2',
+      institucionOrigenId: '2',
+      institucionOrigenNombre: 'Tecnológico de Monterrey',
+      equivalenciasIds: ['EQ09', 'EQ10', 'EQ11'],
+      creditosConvalidados: 10,
+      creditosTotalesMalla: 180,
+      cursosConvalidados: 2,
+      cursosSinEquivalencia: 1,
+      cursosTotalesOrigen: 5,
+      estado: 'ENVIADA_ALUMNO',
+      fechaCreacion: '2024-03-08T11:00:00.000Z',
+      fechaEnvio: '2024-03-10T09:00:00.000Z',
+      observacionesCoordinador: '2 equivalencias aprobadas. Cálculo Diferencial queda pendiente de revisión.'
+    },
+    {
+      id: 'SIM-003',
+      solicitudAdmisionId: 'SOL-1718912000000',
+      cicloPostulacion: '2024-II',
+      coordinadorId: 'U-002',
+      coordinadorNombre: 'María López',
+      alumno: { nombres: 'Ana María', apellidos: 'López Ruiz', dni: '71234567', correo: 'ana.lopez@gmail.com' },
+      carreraUsil: 'INGENIERÍA DE SISTEMAS DE INFORMACIÓN',
+      facultadUsil: 'Facultad de Ingeniería e Inteligencia Artificial',
+      mallaUsilId: 'm-usil-1',
+      institucionOrigenId: '3',
+      institucionOrigenNombre: 'SENATI',
+      equivalenciasIds: ['EQ06', 'EQ07'],
+      creditosConvalidados: 9,
+      creditosTotalesMalla: 160,
+      cursosConvalidados: 2,
+      cursosSinEquivalencia: 0,
+      cursosTotalesOrigen: 4,
+      estado: 'BORRADOR',
+      fechaCreacion: '2024-05-20T15:30:00.000Z',
+      fechaEnvio: null,
+      observacionesCoordinador: ''
     }
   ],
 
@@ -389,6 +435,76 @@ const SEED_DATA = {
         { accion: 'ENVIADA_ALUMNO', usuario: 'María López', timestamp: '2024-01-16T09:30:00.000Z', detalle: 'Simulación enviada al alumno para revisión' }
       ],
       fechaCreacion: '2024-01-15T10:00:00.000Z'
+    },
+    {
+      id: 'CONV-002',
+      simulacionId: 'SIM-002',
+      solicitudAdmisionId: 'SOL-1718912000001',
+      cicloPostulacion: '2024-II',
+      coordinadorId: 'U-003',
+      coordinadorNombre: 'Jorge Díaz',
+      coordinadorCargo: 'Coordinador Académico',
+      alumno: { nombres: 'Carlos', apellidos: 'Mendoza', dni: '78889999', correo: 'cmendoza@hotmail.com' },
+      carreraUsil: 'Administración',
+      facultadUsil: 'Facultad de Ciencias Empresariales',
+      mallaUsilId: 'm-usil-2',
+      institucionOrigenId: '2',
+      institucionOrigenNombre: 'Tecnológico de Monterrey',
+      equivalenciasSnapshot: [
+        { id: 'EQ09', cursoExtNombre: 'Programación Avanzada', cursoExtCodigo: 'TEC-TC1028', cursoExtCreditos: 5, cursoUsilNombre: 'Desarrollo de Software II', cursoUsilCodigo: 'USIL-CS302', cursoUsilCreditos: 5, porcentajeSimilitud: 87, estado: 'APROBADA' },
+        { id: 'EQ10', cursoExtNombre: 'Estructura de Datos', cursoExtCodigo: 'TEC-TC1031', cursoUsilNombre: 'Estructura de Datos', cursoExtCreditos: 5, cursoUsilCodigo: 'USIL-CS202', cursoUsilCreditos: 5, porcentajeSimilitud: 93, estado: 'APROBADA' }
+      ],
+      creditosConvalidados: 10,
+      creditosTotalesMalla: 180,
+      cursosConvalidados: 2,
+      estado: 'FIRMADA',
+      firmaAlumno: 'Carlos Mendoza',
+      fechaFirma: '2024-03-15T10:00:00.000Z',
+      numeroCorrelativo: null,
+      fechaMemorandum: null,
+      aprobadoPor: null,
+      aprobadoCargo: null,
+      auditoria: [
+        { accion: 'CREADA', usuario: 'Jorge Díaz', timestamp: '2024-03-10T12:00:00.000Z', detalle: 'Convalidación generada a partir de Simulación SIM-002' },
+        { accion: 'FIRMADA', usuario: 'Carlos Mendoza', timestamp: '2024-03-15T10:00:00.000Z', detalle: 'Alumno registró firma de conformidad' }
+      ],
+      fechaCreacion: '2024-03-10T12:00:00.000Z'
+    },
+    {
+      id: 'CONV-003',
+      simulacionId: 'SIM-001',
+      solicitudAdmisionId: 'SOL-1718912000000',
+      cicloPostulacion: '2023-II',
+      coordinadorId: 'U-002',
+      coordinadorNombre: 'María López',
+      coordinadorCargo: 'Coordinadora Académica',
+      alumno: { nombres: 'Ana María', apellidos: 'López Ruiz', dni: '71234567', correo: 'ana.lopez@gmail.com' },
+      carreraUsil: 'INGENIERÍA DE SISTEMAS DE INFORMACIÓN',
+      facultadUsil: 'Facultad de Ingeniería e Inteligencia Artificial',
+      mallaUsilId: 'm-usil-1',
+      institucionOrigenId: '3',
+      institucionOrigenNombre: 'SENATI',
+      equivalenciasSnapshot: [
+        { id: 'EQ01', cursoExtNombre: 'Matemática para Ingeniería', cursoExtCodigo: 'SEN-MAT100', cursoExtCreditos: 5, cursoUsilNombre: 'Matemática Básica', cursoUsilCodigo: 'USIL-MAT101', cursoUsilCreditos: 4, porcentajeSimilitud: 92, estado: 'APROBADA' },
+        { id: 'EQ03', cursoExtNombre: 'Programación Orientada a Objetos', cursoExtCodigo: 'SEN-POO301', cursoExtCreditos: 6, cursoUsilNombre: 'Desarrollo de Software I', cursoUsilCodigo: 'USIL-CS201', cursoUsilCreditos: 5, porcentajeSimilitud: 85, estado: 'APROBADA' },
+        { id: 'EQ04', cursoExtNombre: 'Estructuras de Datos y Algoritmos', cursoExtCodigo: 'SEN-EDD201', cursoExtCreditos: 5, cursoUsilNombre: 'Estructura de Datos', cursoUsilCodigo: 'USIL-CS202', cursoUsilCreditos: 5, porcentajeSimilitud: 95, estado: 'APROBADA' }
+      ],
+      creditosConvalidados: 14,
+      creditosTotalesMalla: 160,
+      cursosConvalidados: 3,
+      estado: 'MEMORANDUM_EMITIDO',
+      firmaAlumno: 'Ana María López Ruiz',
+      fechaFirma: '2023-12-10T09:00:00.000Z',
+      numeroCorrelativo: 'CONV-2023-048',
+      fechaMemorandum: '2023-12-12T11:00:00.000Z',
+      aprobadoPor: 'María López',
+      aprobadoCargo: 'Coordinadora Académica',
+      auditoria: [
+        { accion: 'CREADA', usuario: 'María López', timestamp: '2023-12-05T10:00:00.000Z', detalle: 'Convalidación generada a partir de Simulación SIM-001 (ciclo 2023-II)' },
+        { accion: 'FIRMADA', usuario: 'Ana María López Ruiz', timestamp: '2023-12-10T09:00:00.000Z', detalle: 'Alumna registró firma de conformidad' },
+        { accion: 'MEMORANDUM_EMITIDO', usuario: 'María López', timestamp: '2023-12-12T11:00:00.000Z', detalle: 'Memorándum CONV-2023-048 emitido y enviado a Registro Académico' }
+      ],
+      fechaCreacion: '2023-12-05T10:00:00.000Z'
     }
   ],
 
@@ -429,7 +545,7 @@ const SEED_DATA = {
 };
 
 // Versión del seed — si cambia, resetea la DB local
-const SEED_VERSION = 11;
+const SEED_VERSION = 13;
 
 /* ------------------------------------------------------------
    Almacenamiento — usa localStorage en el navegador y un
@@ -886,6 +1002,13 @@ export const db = {
     return data.solicitudes_admision[idx];
   },
 
+  async deleteSolicitudAdmision(id) {
+    await delay(300);
+    const data = getRawData();
+    const idx = (data.solicitudes_admision || []).findIndex(s => s.id === id);
+    if (idx !== -1) { data.solicitudes_admision[idx].eliminado = true; setRawData(data); }
+  },
+
   // --- Simulaciones ---
   async getSimulaciones(filtros = {}) {
     await delay();
@@ -956,6 +1079,13 @@ export const db = {
     data.simulaciones[idx].fechaEnvio = new Date().toISOString();
     setRawData(data);
     return data.simulaciones[idx];
+  },
+
+  async deleteSimulacion(id) {
+    await delay(300);
+    const data = getRawData();
+    const idx = (data.simulaciones || []).findIndex(s => s.id === id);
+    if (idx !== -1) { data.simulaciones[idx].eliminado = true; setRawData(data); }
   },
 
   // --- Convalidaciones ---
@@ -1054,6 +1184,13 @@ export const db = {
     conv.auditoria = [...(conv.auditoria || []), { accion: 'MEMORANDUM_EMITIDO', usuario: aprobadoPor, timestamp: now, detalle: `Memorándum ${correlativo} emitido y enviado a Registro Académico` }];
     setRawData(data);
     return data.convalidaciones[idx];
+  },
+
+  async deleteConvalidacion(id) {
+    await delay(300);
+    const data = getRawData();
+    const idx = (data.convalidaciones || []).findIndex(c => c.id === id);
+    if (idx !== -1) { data.convalidaciones[idx].eliminado = true; setRawData(data); }
   },
 
   // --- Reportes ---
@@ -1199,5 +1336,110 @@ export const db = {
       setRawData(data);
     }
     return data.usil_catalog;
-  }
+  },
+
+  // --- Portal Externo: simulación desde landing page ---
+  async createSimulacionExterna({ datos, archivosNombres = [] }) {
+    await delay(200);
+    const data = getRawData();
+    if (!data.simulaciones) data.simulaciones = [];
+
+    // Buscar malla USIL de la carrera elegida para generar equivalencias mock
+    const cursosUsil = data.cursosUsil || [];
+    const carreraLower = (datos.carreraUsil || '').toLowerCase();
+    const facultadLower = (datos.facultadUsil || '').toLowerCase();
+
+    // Cursos USIL de la facultad/carrera seleccionada (filtra por facultad aproximada)
+    let cursosTarget = cursosUsil.filter(c =>
+      (c.facultad || '').toLowerCase().includes(facultadLower.split(' ')[1] || facultadLower) ||
+      (c.facultad || '').toLowerCase().includes('ingeniería') && facultadLower.includes('ingeniería')
+    );
+    if (!cursosTarget.length) cursosTarget = cursosUsil.slice(0, 12);
+    cursosTarget = cursosTarget.slice(0, 10);
+
+    // Cursos de origen simulados (basados en la carrera de origen del postulante)
+    const carreraOrigenLower = (datos.carreraOrigen || '').toLowerCase();
+    const cursosOrigenMock = [
+      'Algoritmos y Programación', 'Estructuras de Datos', 'Base de Datos',
+      'Matemática Discreta', 'Cálculo I', 'Álgebra Lineal',
+      'Programación Orientada a Objetos', 'Redes de Computadoras',
+      'Ingeniería de Software', 'Sistemas Operativos',
+    ].filter((_, i) => {
+      // Seleccionar aleatoriamente ~70% de cursos para simular variabilidad
+      return ((i * 7 + carreraOrigenLower.length) % 10) < 8;
+    });
+
+    // Calcular similitud de cada curso origen con cada curso USIL
+    function similitudLexica(a, b) {
+      const tok = s => new Set(s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').split(/\W+/).filter(w => w.length > 2));
+      const A = tok(a), B = tok(b);
+      const inter = [...A].filter(x => B.has(x)).length;
+      const union = new Set([...A, ...B]).size;
+      return union ? Math.round(45 + (inter / union) * 55) : 45;
+    }
+
+    // Para cada curso de origen, encontrar el mejor match en USIL
+    const equivalencias = cursosOrigenMock.map(cursoExt => {
+      let mejor = null, mejorSim = 0;
+      cursosTarget.forEach(cu => {
+        const sim = similitudLexica(cursoExt, cu.nombre);
+        if (sim > mejorSim) { mejorSim = sim; mejor = cu; }
+      });
+      return {
+        cursoExt,
+        cursoUsil:    mejor ? mejor.nombre : '—',
+        cursoUsilId:  mejor ? mejor.id : null,
+        creditosUsil: mejor ? mejor.creditos : 0,
+        similitud:    mejorSim,
+      };
+    });
+
+    const convalidables = equivalencias.filter(e => e.similitud >= 60).length;
+    const creditosEst   = equivalencias
+      .filter(e => e.similitud >= 60)
+      .reduce((s, e) => s + e.creditosUsil, 0);
+    const pctConvalidable = equivalencias.length
+      ? Math.round((convalidables / equivalencias.length) * 100)
+      : 0;
+
+    const id = 'SIM-EXT-' + Date.now();
+    const sim = {
+      id,
+      origen:        'EXTERNA',
+      estado:        'RECIBIDA',
+      fechaCreacion: new Date().toISOString(),
+      cicloPostulacion: null,
+      alumnoNombre:  `${datos.nombres} ${datos.apellidos}`,
+      alumnoDni:     datos.numDoc,
+      alumnoCorreo:  datos.email,
+      alumnoTelefono: datos.telefono,
+      tipoDoc:       datos.tipoDoc,
+      institucionNombre: datos.institucion,
+      tipoInstitucion:   datos.tipoInstitucion,
+      carreraOrigen:     datos.carreraOrigen,
+      anioIngreso:       datos.anioIngreso,
+      anioEgreso:        datos.anioEgreso || null,
+      facultadUsil:      datos.facultadUsil,
+      carreraUsilDestino: datos.carreraUsil,
+      archivosAdjuntos:  archivosNombres,
+      equivalenciasPreliminares: equivalencias,
+      cursosConvalidados:  convalidables,
+      creditosConvalidados: creditosEst,
+      eliminado: false,
+    };
+
+    data.simulaciones.push(sim);
+    setRawData(data);
+
+    return {
+      id,
+      equivalenciasPreliminares: equivalencias,
+      resumen: {
+        total:             equivalencias.length,
+        convalidables,
+        creditosEstimados: creditosEst,
+        pctConvalidable,
+      },
+    };
+  },
 };

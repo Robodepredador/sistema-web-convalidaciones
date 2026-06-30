@@ -39,6 +39,11 @@ export function getActiveVisionModel() {
   return getModels().find(m => m.activo && m.capacidades.includes('vision')) || null;
 }
 
+// Cualquier modelo activo — para tareas de texto (no requiere visión)
+export function getAnyActiveModel() {
+  return getModels().find(m => m.activo) || null;
+}
+
 export function addModel(data) {
   const models = getModels();
   const model = { ...data, id: `model_${Date.now()}` };

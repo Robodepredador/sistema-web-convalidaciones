@@ -278,6 +278,9 @@
   border-bottom: none;
 }
 
+.data-table--compact td,
+.data-table--compact th { padding: var(--space-2) var(--space-3); }
+
 /* Celdas con énfasis */
 .cell-primary {
   font-weight: var(--fw-semibold);
@@ -288,6 +291,12 @@
 
 .col-center { text-align: center; }
 .col-right  { text-align: right; }
+
+.table-empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--space-10);
+}
 
 /* ---------- Badges de estado ---------- */
 .badge {
@@ -378,6 +387,11 @@
   color: #b91c1c;
 }
 .badge--danger .badge__dot { background: var(--color-error); }
+
+.badge--info {
+  background: #ede9fe;
+  color: #6d28d9;
+}
 
 /* ============================================================
    SEMÁFORO SEMÁNTICO — indicador de % de similitud (copiloto IA)
@@ -523,6 +537,8 @@
   transform: scale(1);
 }
 
+.modal-content--lg { max-width: 860px; }
+
 .modal-header {
   padding: var(--space-5) var(--space-6);
   border-bottom: 1px solid var(--color-border);
@@ -599,4 +615,48 @@
 .stat-card-vertical__desc {
   font-size: var(--fs-md);
   opacity: 0.7;
+}
+
+/* ---------- Toast (shared across all modules) ---------- */
+.toast {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  z-index: 1000;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+}
+
+.toast__icon {
+  color: var(--color-success);
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.toast__msg {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-strong);
 }

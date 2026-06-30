@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso — USIL ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/css/tokens.css">
+  <link rel="stylesheet" href="../../shared/css/base.css">
+  <link rel="stylesheet" href="../../shared/css/components.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-surface-alt);
+    }
+    .login-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      padding: var(--space-10) var(--space-10);
+      width: 100%;
+      max-width: 420px;
+    }
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-8);
+    }
+    .login-logo__mark {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-lg);
+      background: var(--color-brand-600);
+      color: #fff;
+      font-weight: var(--fw-bold);
+      font-size: var(--fs-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-logo__name {
+      font-size: var(--fs-lg);
+      font-weight: var(--fw-bold);
+      color: var(--color-text-strong);
+    }
+    .login-logo__sub {
+      font-size: var(--fs-sm);
+      color: var(--color-text-muted);
+    }
+    .login-title {
+      font-size: var(--fs-xl);
+      font-weight: var(--fw-bold);
+      color: var(--color-text-strong);
+      margin: 0 0 var(--space-2);
+    }
+    .login-sub {
+      font-size: var(--fs-sm);
+      color: var(--color-text-muted);
+      margin: 0 0 var(--space-6);
+    }
+    .login-field { margin-bottom: var(--space-4); }
+    .login-footer {
+      margin-top: var(--space-6);
+      text-align: center;
+      font-size: var(--fs-sm);
+      color: var(--color-text-muted);
+    }
+    .login-footer a {
+      color: var(--color-brand-600);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo__mark">U</div>
+      <div>
+        <div class="login-logo__name">USIL ERP</div>
+        <div class="login-logo__sub">Sistema de Convalidaciones</div>
+      </div>
+    </div>
+
+    <h1 class="login-title">Acceso al sistema</h1>
+    <p class="login-sub">Ingresa con tu cuenta institucional de coordinador académico.</p>
+
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="login-field">
+        <label class="field__label" for="inp-email">Correo institucional</label>
+        <input
+          type="email"
+          id="inp-email"
+          class="field__input"
+          placeholder="coordinador@usil.edu.pe"
+          required
+          autocomplete="username">
+      </div>
+      <div class="login-field">
+        <label class="field__label" for="inp-password">Contraseña</label>
+        <input
+          type="password"
+          id="inp-password"
+          class="field__input"
+          placeholder="••••••••"
+          required
+          autocomplete="current-password">
+      </div>
+      <div id="login-error" style="display:none;color:var(--color-error);font-size:var(--fs-sm);margin-bottom:var(--space-4);"></div>
+      <button type="submit" class="btn btn--primary" style="width:100%;">Ingresar</button>
+    </form>
+
+    <div class="login-footer">
+      <a href="/public/landing/">← Volver al portal público</a>
+    </div>
+  </div>
+
+  <script>
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('inp-email').value;
+      const pass  = document.getElementById('inp-password').value;
+      const errEl = document.getElementById('login-error');
+
+      // Mock: cualquier correo @usil.edu.pe con contraseña no vacía
+      if (email.endsWith('@usil.edu.pe') && pass.length >= 4) {
+        window.location.href = '/public/modulos/equivalencias/';
+      } else {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Credenciales incorrectas. Usa tu correo @usil.edu.pe.';
+      }
+    }
+  </script>
+
+</body>
+</html>

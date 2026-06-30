@@ -107,6 +107,13 @@
           <span class="choice-card__foot">Configuración uno a uno</span>
         </button>
 
+        <button type="button" class="choice-card" id="choice-sheet" data-tipo="sheet">
+          <span class="choice-card__icon" data-icon="upload"></span>
+          <span class="choice-card__title">Importar Hoja de Cálculo</span>
+          <span class="choice-card__desc">Sube el plan de estudios en Excel o CSV. Los cursos se detectan automáticamente por encabezados de columna, sin necesidad de IA.</span>
+          <span class="choice-card__foot">Compatible con .xlsx, .xls y .csv</span>
+        </button>
+
       </div>
 
       <div class="info-note">
@@ -198,7 +205,7 @@
                     <th>Nombre del Curso</th>
                     <th class="col-center">Cond.</th>
                     <th class="col-center">Créd.</th>
-                    <th class="col-center">T/P/L</th>
+                    <th class="col-center">Horas</th>
                   </tr>
                 </thead>
                 <tbody id="pdf-review-tbody"></tbody>
@@ -216,7 +223,72 @@
 
       </div><!-- /step3-pdf -->
 
-      <!-- ── 3-B: Registro Manual ────────────────────────────── -->
+      <!-- ── 3-B: Importar Hoja de Cálculo ───────────────────── -->
+      <div id="step3-sheet" hidden>
+
+        <div class="import-grid" style="grid-template-columns:1fr">
+          <div class="upload-card">
+            <div class="upload-card__head">
+              <span class="upload-card__title">Sube el Plan de Estudios</span>
+              <span class="badge badge--info" id="sheet-model-badge" style="font-size:var(--fs-sm)">Excel · CSV</span>
+            </div>
+            <div class="dropzone" id="sheet-dropzone">
+              <span class="dropzone__icon" data-icon="upload"></span>
+              <span class="dropzone__title" id="sheet-dropzone-title">Arrastra tu archivo aquí</span>
+              <span class="dropzone__hint">Formatos: Excel (.xlsx, .xls) o CSV (.csv) · Detecta columnas automáticamente</span>
+              <span class="dropzone__file" id="sheet-dropzone-file" hidden></span>
+              <span class="field__error" id="sheet-file-error" role="alert"></span>
+              <button class="btn btn--primary btn--sm" id="sheet-pick-file">Seleccionar Archivo</button>
+              <input type="file" id="sheet-file-input" accept=".xlsx,.xls,.csv" hidden>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado: procesando con IA -->
+        <div id="sheet-state-processing" hidden style="margin-top:var(--space-5)">
+          <div class="pdf-processing">
+            <div class="pdf-spinner"></div>
+            <p class="pdf-processing__msg" id="sheet-progress-text">Analizando con IA…</p>
+            <p class="pdf-processing__hint">El modelo está interpretando la estructura del archivo</p>
+          </div>
+        </div>
+
+        <!-- Preview: oculto hasta que se parsea el archivo -->
+        <div id="sheet-preview" hidden style="margin-top:var(--space-5)">
+          <div class="info-note" style="margin-bottom:var(--space-4)">
+            <span class="info-note__icon" data-icon="check"></span>
+            <span id="sheet-review-summary"></span>
+          </div>
+          <div class="card table-container" style="margin-bottom:var(--space-5)">
+            <div class="table-scroll" style="max-height:360px;overflow-y:auto">
+              <table class="data-table data-table--compact">
+                <thead>
+                  <tr>
+                    <th class="col-center">Ciclo</th>
+                    <th class="col-center">#</th>
+                    <th>Código</th>
+                    <th>Nombre del Curso</th>
+                    <th class="col-center">Cond.</th>
+                    <th class="col-center">Créd.</th>
+                    <th class="col-center">Horas</th>
+                  </tr>
+                </thead>
+                <tbody id="sheet-review-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-footer">
+          <button class="btn btn--outline" id="s3s-back"><span class="btn__icon" data-icon="chevronLeft"></span>Atrás</button>
+          <button class="btn btn--primary" id="s3s-import" disabled>
+            Usar estos cursos<span class="btn__icon" data-icon="chevronRight"></span>
+          </button>
+        </div>
+
+      </div><!-- /step3-sheet -->
+
+      <!-- ── 3-C: Registro Manual ────────────────────────────── -->
       <div id="step3-manual" hidden>
         <div class="card table-container">
           <div style="padding: var(--space-4) var(--space-5) 0">
@@ -313,7 +385,6 @@
       color: var(--color-text-muted);
       margin: 0;
     }
-    .badge--info { background: #ede9fe; color: #6d28d9; padding: 2px var(--space-3); border-radius: var(--radius-pill); font-weight: var(--fw-semibold); }
   </style>
 
   <script src="../../../shared/js/icons.js"></script>

@@ -135,12 +135,11 @@ class AppShell extends HTMLElement {
       toggle.addEventListener('click', () => sidebar.classList.toggle('is-open'));
     }
 
-    const action = this.querySelector(`#${actionId}`);
-    if (action) {
+    this.querySelectorAll(`#${actionId}`).forEach(action => {
       action.addEventListener('click', () => {
         this.dispatchEvent(new CustomEvent('app-action', { bubbles: true, detail: actionId }));
       });
-    }
+    });
   }
 }
 

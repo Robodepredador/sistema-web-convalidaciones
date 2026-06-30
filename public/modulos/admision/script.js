@@ -306,7 +306,7 @@ async function resetWizard(form, uploadedDocs, reloadCarrerasOrigen, reloadFacul
     iconEl.innerHTML = '';
     btnEl.innerHTML = '<span class="btn__icon" data-icon="upload"></span>Seleccionar';
     fileIn.value = '';
-    uploadedDocs[docId] = false;
+    uploadedDocs[docId] = null;
     if (typeof renderIcons === 'function') renderIcons(row);
   });
 
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const toast                 = document.getElementById('toast');
   const tableBandejaBody      = document.getElementById('table-bandeja-body');
 
-  const uploadedDocs = { dni: false, matricula: false, record: false };
+  const uploadedDocs = { dni: null, matricula: null, record: null };
 
   /* ── CASCADE SELECTS ──────────────────────────────────── */
   const reloadInstituciones = async () => {
@@ -476,12 +476,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   /* ── FILE UPLOAD ──────────────────────────────────────── */
+  function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   document.querySelectorAll('input[type="file"]').forEach(input => {
-    input.addEventListener('change', () => {
+    input.addEventListener('change', async () => {
       const file = input.files[0];
       if (!file) return;
-      const docId = input.dataset.doc;
-      uploadedDocs[docId] = file.name;
+
+      if (file.size > 2 * 1024 * 1024) {
+        alert('El archivo no debe superar 2 MB. Comprime o reduce el documento e inténtalo de nuevo.');
+        input.value = '';
+        return;
+      }
+
+      const docId   = input.dataset.doc;
+      const dataUrl = await fileToDataUrl(file);
+      uploadedDocs[docId] = { nombre: file.name, tipo: file.type, dataUrl };
 
       const row     = document.getElementById(`doc-row-${docId}`);
       const labelEl = document.getElementById(`file-label-${docId}`);
@@ -524,9 +541,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         mallaDestinoId:      mallaDestinoSelect.value,
       },
       documentos: {
-        dni:       !!uploadedDocs.dni,
-        matricula: !!uploadedDocs.matricula,
-        record:    !!uploadedDocs.record,
+        dni:       uploadedDocs.dni      || null,
+        matricula: uploadedDocs.matricula || null,
+        record:    uploadedDocs.record    || null,
       }
     };
 

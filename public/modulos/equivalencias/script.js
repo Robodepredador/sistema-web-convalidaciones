@@ -1,4 +1,5 @@
 import { db } from '../../../shared/js/db.js';
+import { getAnyActiveModel } from '../../../shared/js/ia/ai-config.js';
 
 const coordinador =
   (typeof CURRENT_USER !== 'undefined' && CURRENT_USER?.name) || 'Coordinador Académico';
@@ -154,8 +155,8 @@ function setupListeners() {
   });
 
   // Campos Paso 1
-  UI.inpAlumnoNombre.addEventListener('input', e => { state.alumnoNombre = e.target.value.trim(); });
-  UI.inpAlumnoDni.addEventListener('input', e => { state.alumnoDni = e.target.value.trim(); });
+  UI.inpAlumnoNombre.addEventListener('input', e => { state.alumnoNombre = e.target.value.trim(); validateStep1(); });
+  UI.inpAlumnoDni.addEventListener('input', e => { state.alumnoDni = e.target.value.trim(); validateStep1(); });
 
   UI.selInst.addEventListener('change', e => {
     state.institucionId = e.target.value;
@@ -238,7 +239,12 @@ function goStep(step) {
 }
 
 function validateStep1() {
-  const ok = state.carreraUsilId && state.institucionId && state.cursosExternos.length > 0;
+  const nombre = UI.inpAlumnoNombre.value.trim();
+  const dni    = UI.inpAlumnoDni.value.trim();
+  const ok = state.carreraUsilId && state.institucionId
+          && state.cursosExternos.length > 0
+          && nombre.length >= 2
+          && /^\d{8}$/.test(dni);
   UI.btnGoStep2.disabled = !ok;
 }
 
@@ -351,16 +357,98 @@ async function analyzeFile() {
 }
 
 // ─── EXTRACCIÓN REAL (PDF.js + SheetJS, carga diferida) ──────────────────────
+const RECORD_AI_PROMPT = `Eres un extractor de récords académicos universitarios.
+Extrae TODOS los cursos/asignaturas del texto y devuelve ÚNICAMENTE JSON válido:
+{"cursos":[{"semestre":"S1","codigo":"MAT-101","nombre":"MATEMÁTICA I","creditos":4,"nota":15.5}]}
+Reglas:
+- semestre: usa el identificador del periodo (S1, S2, I, II, 2023-1, etc.). Si no hay, usa "".
+- nombre: nombre completo del curso en mayúsculas.
+- codigo: código de la asignatura si aparece explícitamente. Si no, "".
+- creditos: número de créditos o unidades de crédito. Si no aparece, 0.
+- nota: calificación numérica obtenida por el alumno. Si no aparece o no tiene nota, null.
+- IGNORA filas de totales, promedios globales, encabezados repetidos y metadata.
+- Si no hay cursos devuelve {"cursos":[]}.`;
+
+async function callAiForRecord(text, model) {
+  const res = await fetch(model.endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${model.apiKey}`,
+      ...(model.proveedor === 'openrouter' ? {
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'USIL ERP - Record Extraction'
+      } : {})
+    },
+    body: JSON.stringify({
+      model: model.modelId,
+      messages: [
+        { role: 'system', content: RECORD_AI_PROMPT },
+        { role: 'user',   content: `Extrae los cursos de este récord académico:\n\n${text}` }
+      ],
+      max_tokens: 8192,
+      temperature: 0.1
+    })
+  });
+
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  const data    = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  const match   = content.match(/\{[\s\S]*\}/);
+  if (!match) return [];
+  let parsed;
+  try { parsed = JSON.parse(match[0]); } catch { return []; }
+
+  return (parsed.cursos || [])
+    .filter(c => c.nombre && String(c.nombre).trim().length > 2)
+    .map((c, i) => ({
+      id:       `EXT_${i + 1}`,
+      codigo:   String(c.codigo || '').trim() || `EXT-${String(i + 1).padStart(3, '0')}`,
+      semestre: String(c.semestre || ''),
+      nombre:   String(c.nombre).trim().toUpperCase(),
+      creditos: parseFloat(c.creditos) || 0,
+      nota:     c.nota != null ? parseFloat(c.nota) || null : null,
+    }));
+}
+
 async function extractCourses(file) {
-  const ext = file.name.split('.').pop().toLowerCase();
+  const ext   = file.name.split('.').pop().toLowerCase();
+  const model = getAnyActiveModel();
+
   if (ext === 'pdf') {
     const text = await readPDFText(file);
+
+    if (model) {
+      try {
+        const cursos = await callAiForRecord(text, model);
+        if (cursos.length > 0) return cursos;
+        console.warn('[equivalencias] IA no encontró cursos, usando parser estructural.');
+      } catch (e) {
+        console.warn('[equivalencias] IA falló, usando parser estructural:', e.message);
+      }
+    }
+
     return parseRecordHistorico(text);
   }
+
   if (['xlsx', 'xls', 'csv'].includes(ext)) {
     const rows = await readExcelRows(file);
-    return parseCursosFromExcelRows(rows);
+    const cursosEstructural = parseCursosFromExcelRows(rows);
+    if (cursosEstructural.length > 0) return cursosEstructural;
+
+    if (model) {
+      try {
+        const textRows = rows.map(r => Object.values(r).join('\t')).join('\n');
+        const cursos = await callAiForRecord(textRows, model);
+        if (cursos.length > 0) return cursos;
+      } catch (e) {
+        console.warn('[equivalencias] IA falló para Excel:', e.message);
+      }
+    }
+
+    return [];
   }
+
   return [];
 }
 
@@ -633,7 +721,10 @@ function renderCursosExternos() {
 
   // Controlar visibilidad y estado del botón IA
   if (!pendientes.length) {
-    UI.btnIaSuggest.style.display = 'none';
+    UI.btnIaSuggest.style.display = 'inline-flex';
+    UI.btnIaSuggest.disabled = true;
+    UI.btnIaSuggest.innerHTML = '<span data-icon="check"></span> Todos los cursos emparejados';
+    safeRenderIcons(UI.btnIaSuggest);
   } else if (state.iaActiva) {
     UI.btnIaSuggest.style.display = 'inline-flex';
     UI.btnIaSuggest.disabled = true;
@@ -931,6 +1022,14 @@ function renderTable() {
 
   const hayEmparejados = filtradas.some(e => e.estado !== 'SIN_EQUIVALENCIA');
   UI.btnGoStep3.disabled = !hayEmparejados;
+
+  if (hayEmparejados) {
+    const conSim = filtradas.filter(e => e.estado !== 'SIN_EQUIVALENCIA' && e.porcentajeSimilitud != null);
+    if (conSim.length) {
+      const avg = Math.round(conSim.reduce((s, e) => s + e.porcentajeSimilitud, 0) / conSim.length);
+      if (avg < 60) showToast(`⚠ Similitud promedio baja (${avg}%). Revisa los emparejamientos.`);
+    }
+  }
 
   if (!filtradas.length) {
     UI.tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No hay equivalencias registradas para este expediente.</td></tr>';
@@ -1337,8 +1436,11 @@ function openDetalle(id) {
       const act = b.dataset.modalAction;
       if (act === 'cerrar') return closeDetalle();
       const map = { aprobar: 'APROBADA', rechazar: 'RECHAZADA', revision: 'EN REVISIÓN', pendiente: 'PENDIENTE' };
-      await atender(sol.id, map[act], b);
-      closeDetalle();
+      try {
+        await atender(sol.id, map[act], b);
+      } finally {
+        closeDetalle();
+      }
     });
   });
 
@@ -1392,6 +1494,52 @@ function inferFacultadUsil(carreraDestino, facultadDestino) {
   return bestScore >= 0.3 ? best : '';
 }
 
+// ─── PANEL DE DOCUMENTOS DEL SOLICITANTE ─────────────────────────────────────
+
+function renderSolicitudDocs(documentos) {
+  const panel = document.getElementById('solicitud-docs-panel');
+  const list  = document.getElementById('solicitud-docs-list');
+  if (!panel || !list) return;
+
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  const LABELS = {
+    dni:      'Copia de DNI / CE',
+    matricula:'Constancia de 1ra Matrícula',
+    record:   'Récord Académico / Notas'
+  };
+
+  list.innerHTML = Object.entries(LABELS).map(([key, label]) => {
+    const doc = documentos?.[key];
+    if (doc?.dataUrl) {
+      return `<div class="sol-doc-row">
+        <span class="sol-doc-row__icon" data-icon="file"></span>
+        <span class="sol-doc-row__label">${label}</span>
+        <span class="sol-doc-row__file">${esc(doc.nombre)}</span>
+        <a class="btn btn--ghost btn--sm sol-doc-row__btn"
+           href="${doc.dataUrl}" download="${esc(doc.nombre)}" target="_blank">
+          <span data-icon="download"></span>Descargar
+        </a>
+      </div>`;
+    }
+    return `<div class="sol-doc-row sol-doc-row--missing">
+      <span class="sol-doc-row__icon" data-icon="file"></span>
+      <span class="sol-doc-row__label">${label}</span>
+      <span class="badge badge--warn" style="font-size:var(--fs-xs)">No adjunto</span>
+    </div>`;
+  }).join('');
+
+  panel.hidden = false;
+  if (typeof renderIcons === 'function') renderIcons(list);
+}
+
+function hideSolicitudDocsPanel() {
+  const panel = document.getElementById('solicitud-docs-panel');
+  if (panel) panel.hidden = true;
+}
+
+// ─── ATENDER SOLICITUD ────────────────────────────────────────────────────────
+
 function atenderSolicitud(id) {
   const sol = state.bandeja.find(x => x.id === id);
   if (!sol) return;
@@ -1425,6 +1573,9 @@ function atenderSolicitud(id) {
   validateStep1();
   showTab('eq-tab-nueva');
 
+  // Mostrar panel de documentos adjuntos de la solicitud
+  renderSolicitudDocs(sol.documentos);
+
   // Bloquea los campos de identidad/destino — solo el record sigue editable
   setWizardLock(true);
 
@@ -1432,7 +1583,25 @@ function atenderSolicitud(id) {
   state.modoAtender = false;
 }
 
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.querySelector('.toast__msg').textContent = msg;
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 4000);
+}
+
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
+document.querySelector('app-shell').addEventListener('app-action', e => {
+  if (e.detail === 'nueva-equivalencia') {
+    state.modoAtender = false;
+    resetWizardStep1();
+    hideSolicitudDocsPanel();
+    showTab('eq-tab-nueva');
+  }
+});
+
 init().catch(err => {
   console.error('Init Error:', err);
   alert('Error en la inicialización: ' + err.message);
